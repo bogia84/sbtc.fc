@@ -4,13 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBTC FC Landing Page</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
     <style>
         /* --- Base Styles --- */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            /* Force Roboto everywhere */
+            font-family: 'Roboto', sans-serif;
         }
 
         body {
@@ -574,38 +580,32 @@
 </head>
 <body>
 
-    <!-- Particle Background -->
     <canvas id="particles-canvas"></canvas>
 
-    <!-- Navigation -->
     <nav id="top-nav">
         <div class="nav-container">
             <div class="nav-logo">SBTC FC</div>
             <div class="nav-links">
                 <a class="active" id="link-players">Đội Hình</a>
                 <a id="link-schedule">Lịch Thi Đấu</a>
-                <a id="link-tournaments">Giải Đấu</a> <!-- NEW LINK -->
+                <a id="link-tournaments">Giải Đấu</a>
                 <a id="link-intro">Giới Thiệu</a>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div id="main-content">
         <h2 class="header-title">DANH SÁCH THI ĐẤU</h2>
         
-        <!-- Tab System -->
         <div class="tabs-container">
             <button class="tab-btn active" data-type="players">Danh Sách Cầu Thủ</button>
             <button class="tab-btn" data-type="coaches">Ban Huấn Luyện</button>
         </div>
 
         <div class="grid-container" id="card-grid">
-            <!-- Cards injected via JS -->
-        </div>
+            </div>
     </div>
 
-    <!-- Modal: Lịch Thi Đấu (Schedule) -->
     <div id="modal-schedule" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -621,15 +621,13 @@
                     <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
                 </div>
                 <div class="calendar-grid" id="cal-grid">
-                    <!-- Dates injected via JS -->
-                </div>
+                    </div>
             </div>
 
             <button class="btn-primary" onclick="alert('Bán vé đang được phát triển!')">Mua Vé</button>
         </div>
     </div>
 
-    <!-- NEW Modal: Giải Đấu (Tournaments) -->
     <div id="modal-tournaments" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -646,7 +644,6 @@
         </div>
     </div>
 
-    <!-- Modal: Giới Thiệu (Intro) -->
     <div id="modal-intro" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -669,7 +666,7 @@
                 mainContent.style.opacity = '1';
             }, 100);
 
-            // --- 1. Data Definitions for Tabs ---
+            // --- 1. Data Definitions for Tabs (Updated to 15 Players) ---
             const playersData = [
                 { name: "MESS3", num: 10, pos: "FW" },
                 { name: "LEE MIN BEO", num: 7, pos: "LW" },
@@ -681,7 +678,12 @@
                 { name: "CLEAR", num: 5, pos: "CB" },
                 { name: "MESSBA", num: 3, pos: "LB" },
                 { name: "SHINV", num: 2, pos: "RB" },
-                { name: "PETER", num: 1, pos: "GK" }
+                { name: "PETER", num: 1, pos: "GK" },
+                // 4 New Added Players to reach 15 Total
+                { name: "SENA", num: 15, pos: "CDM" },
+                { name: "ZEROS", num: 14, pos: "LW" },
+                { name: "YIJIN", num: 17, pos: "CM" },
+                { name: "DIA1", num: 12, pos: "CAM" }
             ];
 
             const coachesData = [
