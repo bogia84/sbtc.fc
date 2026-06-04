@@ -15,7 +15,6 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            /* Force Roboto everywhere */
             font-family: 'Roboto', sans-serif;
         }
 
@@ -35,6 +34,8 @@
             height: 100vh;
             z-index: -1; 
             pointer-events: none; 
+            /* Optimize canvas rendering */
+            transform: translateZ(0); 
         }
 
         /* --- Navigation Bar --- */
@@ -42,13 +43,13 @@
             position: sticky;
             top: 0;
             width: 100%;
-            background: rgba(18, 10, 16, 0.85);
-            backdrop-filter: blur(10px);
+            background: rgba(18, 10, 16, 0.95); /* Removed blur for better scrolling performance */
             z-index: 100;
             padding: 20px 40px;
             border-bottom: 1px solid rgba(232, 42, 99, 0.3);
             opacity: 0; 
             transition: opacity 0.8s ease-in;
+            will-change: opacity;
         }
 
         .nav-container {
@@ -79,7 +80,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             text-transform: uppercase;
-            transition: color 0.3s, text-shadow 0.3s;
+            transition: color 0.2s, text-shadow 0.2s;
             cursor: pointer;
         }
 
@@ -95,6 +96,7 @@
             margin: 0 auto;
             opacity: 0; 
             transition: opacity 0.8s ease-in;
+            will-change: opacity;
         }
 
         .header-title {
@@ -125,7 +127,7 @@
             border-radius: 30px;
             cursor: pointer;
             text-transform: uppercase;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             letter-spacing: 1px;
         }
 
@@ -151,7 +153,8 @@
             aspect-ratio: 4 / 5; 
             perspective: 1000px; 
             cursor: pointer;
-            animation: fadeInCard 0.5s ease-out backwards; 
+            animation: fadeInCard 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards; 
+            will-change: transform, opacity; /* GPU Acceleration */
         }
 
         @keyframes fadeInCard {
@@ -164,10 +167,11 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             transform-style: preserve-3d;
             border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            will-change: transform; /* Hardware accelerate flip */
         }
 
         .card:hover .card-inner {
@@ -183,6 +187,7 @@
             border-radius: 12px;
             overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.1);
+            transform: translateZ(0); /* Prevent flickering */
         }
 
         .card-front {
@@ -252,9 +257,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
             color: white;
+            will-change: transform;
         }
 
         .social-icon:hover {
@@ -279,13 +285,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
+            /* OPTIMIZATION: Replaced heavy backdrop-filter blur with a solid dark overlay to fix lag */
+            background: rgba(10, 5, 8, 0.96);
             z-index: 1000;
             justify-content: center;
             align-items: center;
             opacity: 0;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            will-change: opacity, visibility;
         }
 
         .modal.show {
@@ -302,11 +309,12 @@
             width: 90%;
             max-width: 600px;
             position: relative;
-            transform: scale(0.7) translateY(30px);
+            transform: scale(0.9) translateY(20px); /* Reduced scale jump for smoother calculation */
             opacity: 0;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
-            box-shadow: 0 10px 40px rgba(232, 42, 99, 0.3);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            box-shadow: 0 10px 40px rgba(232, 42, 99, 0.2);
             text-align: center;
+            will-change: transform, opacity; /* Hardware Acceleration */
         }
 
         .modal.show .modal-content {
@@ -368,9 +376,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: all 0.3s;
+            transition: all 0.2s;
             font-weight: bold;
             flex-shrink: 0;
+            will-change: background, color;
         }
 
         .slider-btn:hover {
@@ -426,7 +435,7 @@
             padding: 5px 15px;
             border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             font-weight: bold;
         }
 
@@ -518,6 +527,7 @@
             pointer-events: none;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             font-weight: bold;
+            will-change: transform, opacity;
         }
 
         .match-tooltip::after {
@@ -546,7 +556,7 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.2s;
             text-transform: uppercase;
         }
 
@@ -666,7 +676,7 @@
                 mainContent.style.opacity = '1';
             }, 100);
 
-            // --- 1. Data Definitions for Tabs (Updated to 15 Players) ---
+            // --- 1. Data Definitions for Tabs (15 Players) ---
             const playersData = [
                 { name: "MESS3", num: 10, pos: "FW" },
                 { name: "LEE MIN BEO", num: 7, pos: "LW" },
@@ -679,7 +689,6 @@
                 { name: "MESSBA", num: 3, pos: "LB" },
                 { name: "SHINV", num: 2, pos: "RB" },
                 { name: "PETER", num: 1, pos: "GK" },
-                // 4 New Added Players to reach 15 Total
                 { name: "SENA", num: 15, pos: "CDM" },
                 { name: "ZEROS", num: 14, pos: "LW" },
                 { name: "YIJIN", num: 17, pos: "CM" },
@@ -703,7 +712,10 @@
                 const dataArray = type === 'players' ? playersData : coachesData;
 
                 dataArray.forEach((item, index) => {
-                    const animationDelay = `${index * 0.05}s`; 
+                    // Capped animation delay to prevent excessive stagger lag
+                    const maxDelay = 0.5;
+                    const calculatedDelay = index * 0.04;
+                    const animationDelay = `${Math.min(calculatedDelay, maxDelay)}s`; 
 
                     let detailsHTML = '';
                     if (type === 'players') {
@@ -895,37 +907,42 @@
             });
 
 
-            // --- 7. Particle Background System ---
+            // --- 7. Particle Background System (Optimized for Mobile & Performance) ---
             const canvas = document.getElementById("particles-canvas");
             const ctx = canvas.getContext("2d");
 
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            // Avoid resizing on mobile scroll bars (performance fix)
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
 
             let particlesArray = [];
-            const numberOfParticles = 80; 
+            // Scale particle count based on screen size to prevent mobile lag
+            const numberOfParticles = width > 768 ? 70 : 35; 
 
             class Particle {
                 constructor() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.size = Math.random() * 2.5 + 0.5; 
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.size = Math.random() * 2 + 1; 
                     this.speedX = (Math.random() * 1) - 0.5; 
                     this.speedY = (Math.random() * 1) - 0.5; 
-                    this.color = Math.random() > 0.5 ? 'rgba(232, 42, 99, 0.7)' : 'rgba(255, 255, 255, 0.4)';
+                    this.color = Math.random() > 0.5 ? 'rgba(232, 42, 99, 0.6)' : 'rgba(255, 255, 255, 0.3)';
                 }
                 
                 update() {
                     this.x += this.speedX;
                     this.y += this.speedY;
-                    if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX;
-                    if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY;
+                    if (this.x > width || this.x < 0) this.speedX = -this.speedX;
+                    if (this.y > height || this.y < 0) this.speedY = -this.speedY;
                 }
 
                 draw() {
                     ctx.fillStyle = this.color;
                     ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    // Math.round fixes float rendering lag on some browsers
+                    ctx.arc(Math.round(this.x), Math.round(this.y), this.size, 0, Math.PI * 2);
                     ctx.closePath();
                     ctx.fill();
                 }
@@ -939,7 +956,7 @@
             }
 
             function animateParticles() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, width, height);
                 for (let i = 0; i < particlesArray.length; i++) {
                     particlesArray[i].update();
                     particlesArray[i].draw();
@@ -950,10 +967,17 @@
             initParticles();
             animateParticles();
 
+            // Debounced resize event to prevent lag when resizing window
+            let resizeTimer;
             window.addEventListener('resize', () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                initParticles(); 
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    width = window.innerWidth;
+                    height = window.innerHeight;
+                    canvas.width = width;
+                    canvas.height = height;
+                    initParticles(); 
+                }, 250);
             });
         });
     </script>
