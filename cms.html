@@ -730,6 +730,32 @@
                         <button class="btn btn-primary btn-sm" id="btn-save-status">Lưu Trạng Thái</button>
                     </div>
                 </div>
+
+                <div class="content-section">
+                    <div class="content-section-title">Cấu Hình GitHub (Static Mode)</div>
+                    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;">
+                        Chỉ cần khi server không chạy (GitHub Pages / static hosting). Token được lưu trong localStorage của trình duyệt.
+                    </p>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <h4>GitHub Repo</h4>
+                            <p>Định dạng: <code style="color:var(--accent)">username/repo-name</code></p>
+                        </div>
+                        <input class="form-control" id="gh-repo-input" type="text" placeholder="username/sbtc.fc" style="width:240px;">
+                    </div>
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <h4>GitHub Personal Access Token</h4>
+                            <p>Cần quyền <code style="color:var(--accent)">repo</code> (Contents: read &amp; write).</p>
+                        </div>
+                        <input class="form-control" id="gh-token-input" type="password" placeholder="ghp_..." style="width:240px;">
+                    </div>
+                    <div style="margin-top:20px;display:flex;gap:12px;align-items:center;">
+                        <button class="btn btn-primary btn-sm" id="btn-save-github-config">Lưu Cấu Hình</button>
+                        <button class="btn btn-ghost btn-sm" id="btn-clear-github-config">Xóa</button>
+                        <span id="github-config-status" style="font-size:0.85rem;color:var(--muted);"></span>
+                    </div>
+                </div>
             </div>
 
         </main>
@@ -1361,6 +1387,12 @@ function renderSettings() {
     const toggle = document.getElementById('toggle-published');
     if (ss.published) toggle.classList.add('on'); else toggle.classList.remove('on');
     document.getElementById('bypass-password').value = ss.bypassPassword || '';
+
+    // Pre-fill GitHub config from localStorage
+    document.getElementById('gh-repo-input').value = localStorage.getItem('gh_repo') || '';
+    document.getElementById('gh-token-input').value = localStorage.getItem('gh_token') || '';
+    const hasConfig = localStorage.getItem('gh_repo') && localStorage.getItem('gh_token');
+    document.getElementById('github-config-status').textContent = hasConfig ? 'Da cau hinh' : '';
 }
 
 document.getElementById('toggle-published').addEventListener('click', function() {
@@ -1377,8 +1409,31 @@ document.getElementById('btn-save-status').addEventListener('click', async () =>
         state.siteStatus = ss;
         showToast('Đã lưu trạng thái site!');
     } catch (e) {
-        showToast('Lỗi: ' + e.message, 'error');
+        showToast('Lỗi lưu: ' + e.message, 'error');
     }
+});
+
+document.getElementById('btn-save-github-config').addEventListener('click', () => {
+    const repo = document.getElementById('gh-repo-input').value.trim();
+    const token = document.getElementById('gh-token-input').value.trim();
+    if (!repo || !token) {
+        showToast('Vui lòng nhập cả Repo và Token.', 'error');
+        return;
+    }
+    localStorage.setItem('gh_repo', repo);
+    localStorage.setItem('gh_token', token);
+    document.getElementById('github-config-status').textContent = 'Đã lưu – sẵn sàng lưu qua GitHub API';
+    document.getElementById('github-config-status').style.color = 'var(--success)';
+    showToast('Đã lưu cấu hình GitHub!');
+});
+
+document.getElementById('btn-clear-github-config').addEventListener('click', () => {
+    localStorage.removeItem('gh_repo');
+    localStorage.removeItem('gh_token');
+    document.getElementById('gh-repo-input').value = '';
+    document.getElementById('gh-token-input').value = '';
+    document.getElementById('github-config-status').textContent = 'Đã xóa';
+    document.getElementById('github-config-status').style.color = 'var(--muted)';
 });
 </script>
 </body>

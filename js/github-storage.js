@@ -31,9 +31,9 @@ async function serverWrite(filename, data) {
 }
 
 async function clientWrite(filename, data) {
-  const repo = REPO;
-  const token = GITHUB_TOKEN;
-  if (!repo || !token) throw new Error('No repo/token configured for client-side writes');
+  const repo = localStorage.getItem('gh_repo') || REPO;
+  const token = localStorage.getItem('gh_token') || GITHUB_TOKEN;
+  if (!repo || !token) throw new Error('Chưa cấu hình GitHub – vào Cài Đặt Site để nhập Repo và Token');
 
   const url = `https://api.github.com/repos/${repo}/contents/${filename}`;
   const getRes = await fetch(url, { headers: { Authorization: `token ${token}` } });
@@ -63,9 +63,10 @@ export async function getPlayers() { return fetchJSON(DATA_FILES.players); }
 function withClientFallback(filename) {
   return async (data) => {
     try { return await serverWrite(filename, data); }
-    catch (e) {
-      if (e.status === 401) throw e;
-      return clientWrite(filename, data);
+    catch (serverErr) {
+      if (serverErr.status === 401) throw serverErr;
+      try { return await clientWrite(filename, data); }
+      catch (clientErr) { throw clientErr; }
     }
   };
 }
