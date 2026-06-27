@@ -65,12 +65,12 @@
     },
     {
       "name": "CLEAR",
-      "num": 5,
-      "pos": "CB",
       "photo": "",
       "fb": "",
       "yt": "",
-      "nimo": ""
+      "nimo": "",
+      "num": 18,
+      "pos": "CAM"
     },
     {
       "name": "SHINV",
