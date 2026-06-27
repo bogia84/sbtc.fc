@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SBTC FC Landing Page</title>
-    
+    <title id="page-title">SBTC FC Landing Page</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
+
     <style>
         /* --- Base Styles --- */
         * {
@@ -19,7 +19,7 @@
         }
 
         body {
-            background-color: #120a10; 
+            background-color: #120a10;
             color: #ffffff;
             overflow-x: hidden;
             position: relative;
@@ -32,10 +32,9 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1; 
-            pointer-events: none; 
-            /* Optimize canvas rendering */
-            transform: translateZ(0); 
+            z-index: -1;
+            pointer-events: none;
+            transform: translateZ(0);
         }
 
         /* --- Navigation Bar --- */
@@ -43,11 +42,11 @@
             position: sticky;
             top: 0;
             width: 100%;
-            background: rgba(18, 10, 16, 0.95); /* Removed blur for better scrolling performance */
+            background: rgba(18, 10, 16, 0.95);
             z-index: 100;
             padding: 20px 40px;
             border-bottom: 1px solid rgba(232, 42, 99, 0.3);
-            opacity: 0; 
+            opacity: 0;
             transition: opacity 0.8s ease-in;
             will-change: opacity;
         }
@@ -94,7 +93,7 @@
             padding: 60px 20px;
             max-width: 1300px;
             margin: 0 auto;
-            opacity: 0; 
+            opacity: 0;
             transition: opacity 0.8s ease-in;
             will-change: opacity;
         }
@@ -150,11 +149,11 @@
             background-color: transparent;
             width: 100%;
             max-width: 380px;
-            aspect-ratio: 4 / 5; 
-            perspective: 1000px; 
+            aspect-ratio: 4 / 5;
+            perspective: 1000px;
             cursor: pointer;
-            animation: fadeInCard 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards; 
-            will-change: transform, opacity; /* GPU Acceleration */
+            animation: fadeInCard 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) backwards;
+            will-change: transform, opacity;
         }
 
         @keyframes fadeInCard {
@@ -167,11 +166,11 @@
             width: 100%;
             height: 100%;
             text-align: center;
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             transform-style: preserve-3d;
             border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            will-change: transform; /* Hardware accelerate flip */
+            will-change: transform;
         }
 
         .card:hover .card-inner {
@@ -182,12 +181,12 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            -webkit-backface-visibility: hidden; 
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
             border-radius: 12px;
             overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.1);
-            transform: translateZ(0); /* Prevent flickering */
+            transform: translateZ(0);
         }
 
         .card-front {
@@ -195,6 +194,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        .card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
         }
 
         .placeholder-mark {
@@ -275,9 +281,9 @@
             fill: currentColor;
         }
 
-        /* --- Modals (Popups) Smooth Animation --- */
+        /* --- Modals --- */
         .modal {
-            display: flex; 
+            display: flex;
             visibility: hidden;
             pointer-events: none;
             position: fixed;
@@ -285,7 +291,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* OPTIMIZATION: Replaced heavy backdrop-filter blur with a solid dark overlay to fix lag */
             background: rgba(10, 5, 8, 0.96);
             z-index: 1000;
             justify-content: center;
@@ -309,12 +314,12 @@
             width: 90%;
             max-width: 600px;
             position: relative;
-            transform: scale(0.9) translateY(20px); /* Reduced scale jump for smoother calculation */
+            transform: scale(0.9) translateY(20px);
             opacity: 0;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
             box-shadow: 0 10px 40px rgba(232, 42, 99, 0.2);
             text-align: center;
-            will-change: transform, opacity; /* Hardware Acceleration */
+            will-change: transform, opacity;
         }
 
         .modal.show .modal-content {
@@ -333,9 +338,7 @@
             z-index: 2;
         }
 
-        .close-btn:hover {
-            color: #e82a63;
-        }
+        .close-btn:hover { color: #e82a63; }
 
         .modal-content h2 {
             color: #e82a63;
@@ -351,7 +354,7 @@
             margin-bottom: 20px;
         }
 
-        /* --- Tournament Slider UI --- */
+        /* --- Tournament Slider --- */
         .tournament-slider {
             display: flex;
             align-items: center;
@@ -388,10 +391,7 @@
             box-shadow: 0 0 10px rgba(232, 42, 99, 0.5);
         }
 
-        .tournament-info {
-            flex: 1;
-            text-align: center;
-        }
+        .tournament-info { flex: 1; text-align: center; }
 
         .tournament-info h3 {
             color: #ffffff;
@@ -409,7 +409,7 @@
             letter-spacing: 1px;
         }
 
-        /* --- Custom Calendar UI --- */
+        /* --- Calendar --- */
         .calendar-wrapper {
             background: #ffffff;
             border-radius: 12px;
@@ -439,10 +439,7 @@
             font-weight: bold;
         }
 
-        .nav-month-btn:hover {
-            background: #e82a63;
-            color: white;
-        }
+        .nav-month-btn:hover { background: #e82a63; color: white; }
 
         .calendar-month-year {
             font-size: 1.2rem;
@@ -479,22 +476,10 @@
             position: relative;
         }
 
-        .calendar-day:hover:not(.empty) {
-            background: #ffe3eb;
-            color: #e82a63;
-        }
+        .calendar-day:hover:not(.empty) { background: #ffe3eb; color: #e82a63; }
+        .calendar-day.active { background: #e82a63; color: white; box-shadow: 0 4px 10px rgba(232, 42, 99, 0.4); }
+        .calendar-day.empty { cursor: default; }
 
-        .calendar-day.active {
-            background: #e82a63;
-            color: white;
-            box-shadow: 0 4px 10px rgba(232, 42, 99, 0.4);
-        }
-
-        .calendar-day.empty {
-            cursor: default;
-        }
-
-        /* Match Simulation Styles */
         .match-indicator {
             width: 6px;
             height: 6px;
@@ -504,9 +489,7 @@
             bottom: 4px;
         }
 
-        .calendar-day.active .match-indicator {
-            background-color: #ffffff; 
-        }
+        .calendar-day.active .match-indicator { background-color: #ffffff; }
 
         .match-tooltip {
             position: absolute;
@@ -560,31 +543,23 @@
             text-transform: uppercase;
         }
 
-        .btn-primary:hover {
-            background: #ffa5c2;
-            color: #120a10;
-        }
+        .btn-primary:hover { background: #ffa5c2; color: #120a10; }
 
-        /* --- Responsive Design --- */
+        /* --- Responsive --- */
         @media (max-width: 1024px) {
-            .grid-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .grid-container { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-            .nav-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-            .nav-links {
-                gap: 15px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
+            .nav-container { flex-direction: column; gap: 15px; }
+            .nav-links { gap: 15px; flex-wrap: wrap; justify-content: center; }
+            .grid-container { grid-template-columns: 1fr; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
         }
     </style>
 </head>
@@ -594,7 +569,7 @@
 
     <nav id="top-nav">
         <div class="nav-container">
-            <div class="nav-logo">SBTC FC</div>
+            <div class="nav-logo" id="nav-logo">SBTC FC</div>
             <div class="nav-links">
                 <a class="active" id="link-players">Đội Hình</a>
                 <a id="link-schedule">Lịch Thi Đấu</a>
@@ -605,22 +580,20 @@
     </nav>
 
     <div id="main-content">
-        <h2 class="header-title">DANH SÁCH THI ĐẤU</h2>
-        
+        <h2 class="header-title" id="header-title">DANH SÁCH THI ĐẤU</h2>
+
         <div class="tabs-container">
-            <button class="tab-btn active" data-type="players">Danh Sách Cầu Thủ</button>
-            <button class="tab-btn" data-type="coaches">Ban Huấn Luyện</button>
+            <button class="tab-btn active" data-type="players" id="tab-players">Danh Sách Cầu Thủ</button>
+            <button class="tab-btn" data-type="coaches" id="tab-coaches">Ban Huấn Luyện</button>
         </div>
 
-        <div class="grid-container" id="card-grid">
-            </div>
+        <div class="grid-container" id="card-grid"></div>
     </div>
 
     <div id="modal-schedule" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Lịch Thi Đấu</h2>
-            
             <div class="calendar-wrapper">
                 <div class="calendar-header">
                     <button id="prev-month" class="nav-month-btn">&lt;</button>
@@ -630,10 +603,8 @@
                 <div class="calendar-days-header">
                     <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
                 </div>
-                <div class="calendar-grid" id="cal-grid">
-                    </div>
+                <div class="calendar-grid" id="cal-grid"></div>
             </div>
-
             <button class="btn-primary" onclick="alert('Bán vé đang được phát triển!')">Mua Vé</button>
         </div>
     </div>
@@ -657,66 +628,66 @@
     <div id="modal-intro" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2>Về SBTC FC</h2>
-            <p>Chào mừng đến với Câu lạc bộ Bóng đá SBTC! Chúng tôi là một tập thể đam mê, nhiệt huyết và luôn cống hiến hết mình trên sân cỏ.</p>
-            <p>Mục tiêu của chúng tôi không chỉ là những chiến thắng, mà còn là lan tỏa tinh thần thể thao đẹp mắt đến với người hâm mộ.</p>
+            <h2 id="about-title">Về SBTC FC</h2>
+            <div id="about-body"></div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
+    <script type="module">
+        import { getPlayers, getMatches, getTournaments, getSiteContent } from './js/github-storage.js';
+
+        document.addEventListener("DOMContentLoaded", async () => {
             const topNav = document.getElementById("top-nav");
             const mainContent = document.getElementById("main-content");
             const gridContainer = document.getElementById("card-grid");
             const tabBtns = document.querySelectorAll(".tab-btn");
 
-            // Fade in elements immediately on load
             setTimeout(() => {
                 topNav.style.opacity = '1';
                 mainContent.style.opacity = '1';
             }, 100);
 
-            // --- 1. Data Definitions for Tabs (15 Players) ---
-            const playersData = [
-                { name: "MESS3", num: 10, pos: "FW" },
-                { name: "LEE MIN BEO", num: 7, pos: "LW" },
-                { name: "BECKPHONG", num: 11, pos: "RW" },
-                { name: "NOWAY", num: 9, pos: "ST" },
-                { name: "TK", num: 8, pos: "CM" },
-                { name: "9KENKEN", num: 6, pos: "CDM" },
-                { name: "KIT", num: 4, pos: "CB" },
-                { name: "CLEAR", num: 5, pos: "CB" },
-                { name: "MESSBA", num: 3, pos: "LB" },
-                { name: "SHINV", num: 2, pos: "RB" },
-                { name: "PETER", num: 1, pos: "GK" },
-                { name: "SENA", num: 15, pos: "CDM" },
-                { name: "ZEROS", num: 14, pos: "LW" },
-                { name: "YIJIN", num: 17, pos: "CM" },
-                { name: "DIA1", num: 12, pos: "CAM" }
-            ];
-
-            const coachesData = [
-                { name: "THẦY BA", role: "Head Coach" },
-                { name: "COACH REN", role: "Tactical Coach" },
-                { name: "QUẢN LÝ", role: "Team Manager" }
-            ];
-
-            // SVG Icons for Socials
             const fbIcon = `<svg viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06C2 17.06 5.66 21.21 10.44 21.96V14.96H7.9V12.06H10.44V9.85C10.44 7.34 11.93 5.96 14.22 5.96C15.31 5.96 16.45 6.15 16.45 6.15V8.62H15.19C13.95 8.62 13.56 9.39 13.56 10.18V12.06H16.34L15.89 14.96H13.56V21.96A10 10 0 0 0 22 12.06C22 6.53 17.5 2.04 12 2.04Z"/></svg>`;
             const ytIcon = `<svg viewBox="0 0 24 24"><path d="M21.58 7.19C21.36 6.33 20.67 5.64 19.81 5.42C18.25 5 12 5 12 5C12 5 5.75 5 4.19 5.42C3.33 5.64 2.64 6.33 2.42 7.19C2 8.75 2 12 2 12C2 12 2 15.25 2.42 16.81C2.64 17.67 3.33 18.36 4.19 18.58C5.75 19 12 19 12 19C12 19 18.25 19 19.81 18.58C20.67 18.36 21.36 17.67 21.58 16.81C22 15.25 22 12 22 12C22 12 22 8.75 21.58 7.19ZM10 15V9L15.2 12L10 15Z"/></svg>`;
             const nimoIcon = `<svg viewBox="0 0 24 24"><path d="M21 3H3C1.89 3 1 3.89 1 5V17C1 18.11 1.89 19 3 19H8V21H16V19H21C22.1 19 23 18.11 23 17V5C23 3.89 22.1 3 21 3ZM21 17H3V5H21V17ZM16 11L9 15V7L16 11Z"/></svg>`;
 
-            // --- 2. Render Function for Cards ---
+            // --- Load site content ---
+            let siteContent = {};
+            try {
+                siteContent = await getSiteContent();
+                document.getElementById('page-title').textContent = siteContent.pageTitle || 'SBTC FC';
+                document.getElementById('nav-logo').textContent = siteContent.logoText || 'SBTC FC';
+                document.getElementById('header-title').textContent = siteContent.headerTitle || 'DANH SÁCH THI ĐẤU';
+                document.getElementById('tab-players').textContent = siteContent.tabPlayers || 'Danh Sách Cầu Thủ';
+                document.getElementById('tab-coaches').textContent = siteContent.tabCoaches || 'Ban Huấn Luyện';
+                document.getElementById('about-title').textContent = siteContent.aboutTitle || 'Về SBTC FC';
+                const aboutBody = document.getElementById('about-body');
+                (siteContent.aboutParagraphs || []).forEach(p => {
+                    const el = document.createElement('p');
+                    el.textContent = p;
+                    aboutBody.appendChild(el);
+                });
+            } catch (e) {
+                console.warn('Could not load site content:', e);
+            }
+
+            // --- Load players/coaches ---
+            let playersData = [];
+            let coachesData = [];
+            try {
+                const data = await getPlayers();
+                playersData = data.players || [];
+                coachesData = data.coaches || [];
+            } catch (e) {
+                console.warn('Could not load players:', e);
+            }
+
             function renderCards(type) {
-                gridContainer.innerHTML = ''; 
+                gridContainer.innerHTML = '';
                 const dataArray = type === 'players' ? playersData : coachesData;
 
                 dataArray.forEach((item, index) => {
-                    // Capped animation delay to prevent excessive stagger lag
-                    const maxDelay = 0.5;
-                    const calculatedDelay = index * 0.04;
-                    const animationDelay = `${Math.min(calculatedDelay, maxDelay)}s`; 
-
+                    const animationDelay = `${Math.min(index * 0.04, 0.5)}s`;
                     let detailsHTML = '';
                     if (type === 'players') {
                         detailsHTML = `
@@ -727,29 +698,33 @@
                         detailsHTML = `<p><span>Role</span> ${item.role}</p>`;
                     }
 
-                    const cardHTML = `
+                    const frontContent = item.photo
+                        ? `<img src="${item.photo}" alt="${item.name}">`
+                        : `<div class="placeholder-mark">?</div>`;
+
+                    const socialLinks = `
+                        <div class="social-links">
+                            ${item.fb ? `<a href="${item.fb}" class="social-icon" target="_blank" title="Facebook">${fbIcon}</a>` : ''}
+                            ${item.yt ? `<a href="${item.yt}" class="social-icon" target="_blank" title="YouTube">${ytIcon}</a>` : ''}
+                            ${item.nimo ? `<a href="${item.nimo}" class="social-icon" target="_blank" title="NimoTV">${nimoIcon}</a>` : ''}
+                        </div>
+                    `;
+
+                    gridContainer.innerHTML += `
                         <div class="card" style="animation-delay: ${animationDelay};">
                             <div class="card-inner">
-                                <div class="card-front">
-                                    <div class="placeholder-mark">?</div>
-                                </div>
+                                <div class="card-front">${frontContent}</div>
                                 <div class="card-back">
                                     <h2>${item.name}</h2>
                                     ${detailsHTML}
-                                    <div class="social-links">
-                                        <a href="#" class="social-icon" title="Facebook">${fbIcon}</a>
-                                        <a href="#" class="social-icon" title="YouTube">${ytIcon}</a>
-                                        <a href="#" class="social-icon" title="NimoTV">${nimoIcon}</a>
-                                    </div>
+                                    ${socialLinks}
                                 </div>
                             </div>
                         </div>
                     `;
-                    gridContainer.innerHTML += cardHTML;
                 });
             }
 
-            // --- 3. Tab Click Logic ---
             tabBtns.forEach(btn => {
                 btn.addEventListener("click", function() {
                     tabBtns.forEach(b => b.classList.remove("active"));
@@ -760,25 +735,25 @@
 
             renderCards('players');
 
+            // --- Calendar ---
+            let matchData = {};
+            try {
+                const data = await getMatches();
+                (data.matches || []).forEach(m => { matchData[m.day] = { opponent: m.opponent, icon: m.icon }; });
+            } catch (e) {
+                console.warn('Could not load matches:', e);
+            }
 
-            // --- 4. Custom Calendar Logic ---
             let currentDate = new Date();
             let currentMonth = currentDate.getMonth();
             let currentYear = currentDate.getFullYear();
 
-            const matchData = {
-                5: { opponent: "GAM Esports", icon: "🦅" },
-                15: { opponent: "Team Flash", icon: "⚡" },
-                25: { opponent: "Saigon Buffalo", icon: "🐃" }
-            };
-
             function renderCalendar(month, year) {
-                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
                 document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
 
                 let firstDay = new Date(year, month, 1).getDay();
-                let startDayIndex = firstDay === 0 ? 6 : firstDay - 1; 
-                
+                let startDayIndex = firstDay === 0 ? 6 : firstDay - 1;
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
                 const grid = document.getElementById('cal-grid');
                 grid.innerHTML = '';
@@ -793,59 +768,42 @@
                 for (let i = 1; i <= daysInMonth; i++) {
                     let dayClass = 'calendar-day';
                     let innerHTML = i;
-
-                    if (isCurrentMonthYear && i === today.getDate()) {
-                        dayClass += ' active';
-                    }
-
+                    if (isCurrentMonthYear && i === today.getDate()) dayClass += ' active';
                     if (matchData[i]) {
                         dayClass += ' has-match';
-                        const matchInfo = matchData[i];
-                        innerHTML += `
-                            <div class="match-indicator"></div>
-                            <div class="match-tooltip">vs ${matchInfo.opponent} ${matchInfo.icon}</div>
-                        `;
+                        innerHTML += `<div class="match-indicator"></div><div class="match-tooltip">vs ${matchData[i].opponent} ${matchData[i].icon}</div>`;
                     }
-
                     grid.innerHTML += `<div class="${dayClass}">${innerHTML}</div>`;
                 }
 
-                const dayElements = document.querySelectorAll('.calendar-day:not(.empty)');
-                dayElements.forEach(day => {
+                document.querySelectorAll('.calendar-day:not(.empty)').forEach(day => {
                     day.addEventListener('click', function() {
-                        dayElements.forEach(d => d.classList.remove('active'));
+                        document.querySelectorAll('.calendar-day:not(.empty)').forEach(d => d.classList.remove('active'));
                         this.classList.add('active');
                     });
                 });
             }
 
             document.getElementById("prev-month").addEventListener("click", () => {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
+                if (--currentMonth < 0) { currentMonth = 11; currentYear--; }
                 renderCalendar(currentMonth, currentYear);
             });
 
             document.getElementById("next-month").addEventListener("click", () => {
-                currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
+                if (++currentMonth > 11) { currentMonth = 0; currentYear++; }
                 renderCalendar(currentMonth, currentYear);
             });
 
-            renderCalendar(currentMonth, currentYear); 
+            renderCalendar(currentMonth, currentYear);
 
-            // --- 5. Tournaments Slider Logic ---
-            const tournaments = [
-                { title: "VCS Mùa Xuân 2026", date: "Tháng 2 - Tháng 4, 2026", desc: "Giải đấu cấp cao nhất của LMHT Việt Nam. SBTC quyết tâm giành ngôi vô địch để chứng tỏ sức mạnh của mình." },
-                { title: "Mid-Season Invitational (MSI)", date: "Tháng 5, 2026", desc: "Giải đấu quốc tế giữa năm quy tụ các nhà vô địch từ các khu vực. Mục tiêu là tiến xa trên đấu trường quốc tế." },
-                { title: "VCS Mùa Hè 2026", date: "Tháng 6 - Tháng 9, 2026", desc: "Hành trình tìm kiếm chiếc vé danh giá đến chung kết thế giới (Worlds). Trận chiến sinh tử không khoan nhượng." },
-                { title: "Creator Championship", date: "Tháng 11, 2026", desc: "Giải đấu giao hữu giữa các Content Creator và Streamer hàng đầu Việt Nam. Tứ hùng tái chiến trên sân cỏ và màn hình." }
-            ];
+            // --- Tournaments Slider ---
+            let tournaments = [];
+            try {
+                const data = await getTournaments();
+                tournaments = data.tournaments || [];
+            } catch (e) {
+                console.warn('Could not load tournaments:', e);
+            }
 
             let currentTourIndex = 0;
             const tourTitle = document.getElementById("tour-title");
@@ -853,6 +811,7 @@
             const tourDesc = document.getElementById("tour-desc");
 
             function updateTournamentView() {
+                if (!tournaments.length) return;
                 tourTitle.innerText = tournaments[currentTourIndex].title;
                 tourDate.innerText = tournaments[currentTourIndex].date;
                 tourDesc.innerText = tournaments[currentTourIndex].desc;
@@ -867,23 +826,17 @@
                 currentTourIndex = (currentTourIndex + 1) % tournaments.length;
                 updateTournamentView();
             });
-            
-            updateTournamentView(); // Initialize slider content
 
-            // --- 6. Modal & Navigation Logic ---
-            const btnPlayers = document.getElementById("link-players");
-            const btnSchedule = document.getElementById("link-schedule");
-            const btnTournaments = document.getElementById("link-tournaments");
-            const btnIntro = document.getElementById("link-intro");
-            
+            updateTournamentView();
+
+            // --- Modals ---
             const modalSchedule = document.getElementById("modal-schedule");
             const modalTournaments = document.getElementById("modal-tournaments");
             const modalIntro = document.getElementById("modal-intro");
-            const closeBtns = document.querySelectorAll(".close-btn");
 
-            btnSchedule.addEventListener("click", () => modalSchedule.classList.add("show"));
-            btnTournaments.addEventListener("click", () => modalTournaments.classList.add("show"));
-            btnIntro.addEventListener("click", () => modalIntro.classList.add("show"));
+            document.getElementById("link-schedule").addEventListener("click", () => modalSchedule.classList.add("show"));
+            document.getElementById("link-tournaments").addEventListener("click", () => modalTournaments.classList.add("show"));
+            document.getElementById("link-intro").addEventListener("click", () => modalIntro.classList.add("show"));
 
             function closeAllModals() {
                 modalSchedule.classList.remove("show");
@@ -891,57 +844,45 @@
                 modalIntro.classList.remove("show");
             }
 
-            closeBtns.forEach(btn => {
-                btn.addEventListener("click", closeAllModals);
+            document.querySelectorAll(".close-btn").forEach(btn => btn.addEventListener("click", closeAllModals));
+            window.addEventListener("click", e => {
+                if (e.target === modalSchedule || e.target === modalIntro || e.target === modalTournaments) closeAllModals();
             });
 
-            window.addEventListener("click", (e) => {
-                if (e.target === modalSchedule || e.target === modalIntro || e.target === modalTournaments) {
-                    closeAllModals();
-                }
-            });
-
-            btnPlayers.addEventListener("click", () => {
+            document.getElementById("link-players").addEventListener("click", () => {
                 closeAllModals();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
 
-
-            // --- 7. Particle Background System (Optimized for Mobile & Performance) ---
+            // --- Particles ---
             const canvas = document.getElementById("particles-canvas");
             const ctx = canvas.getContext("2d");
-
-            // Avoid resizing on mobile scroll bars (performance fix)
             let width = window.innerWidth;
             let height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
 
             let particlesArray = [];
-            // Scale particle count based on screen size to prevent mobile lag
-            const numberOfParticles = width > 768 ? 70 : 35; 
+            const numberOfParticles = width > 768 ? 70 : 35;
 
             class Particle {
                 constructor() {
                     this.x = Math.random() * width;
                     this.y = Math.random() * height;
-                    this.size = Math.random() * 2 + 1; 
-                    this.speedX = (Math.random() * 1) - 0.5; 
-                    this.speedY = (Math.random() * 1) - 0.5; 
+                    this.size = Math.random() * 2 + 1;
+                    this.speedX = (Math.random() * 1) - 0.5;
+                    this.speedY = (Math.random() * 1) - 0.5;
                     this.color = Math.random() > 0.5 ? 'rgba(232, 42, 99, 0.6)' : 'rgba(255, 255, 255, 0.3)';
                 }
-                
                 update() {
                     this.x += this.speedX;
                     this.y += this.speedY;
                     if (this.x > width || this.x < 0) this.speedX = -this.speedX;
                     if (this.y > height || this.y < 0) this.speedY = -this.speedY;
                 }
-
                 draw() {
                     ctx.fillStyle = this.color;
                     ctx.beginPath();
-                    // Math.round fixes float rendering lag on some browsers
                     ctx.arc(Math.round(this.x), Math.round(this.y), this.size, 0, Math.PI * 2);
                     ctx.closePath();
                     ctx.fill();
@@ -950,24 +891,18 @@
 
             function initParticles() {
                 particlesArray = [];
-                for (let i = 0; i < numberOfParticles; i++) {
-                    particlesArray.push(new Particle());
-                }
+                for (let i = 0; i < numberOfParticles; i++) particlesArray.push(new Particle());
             }
 
             function animateParticles() {
                 ctx.clearRect(0, 0, width, height);
-                for (let i = 0; i < particlesArray.length; i++) {
-                    particlesArray[i].update();
-                    particlesArray[i].draw();
-                }
+                particlesArray.forEach(p => { p.update(); p.draw(); });
                 requestAnimationFrame(animateParticles);
             }
 
             initParticles();
             animateParticles();
 
-            // Debounced resize event to prevent lag when resizing window
             let resizeTimer;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
@@ -976,10 +911,12 @@
                     height = window.innerHeight;
                     canvas.width = width;
                     canvas.height = height;
-                    initParticles(); 
+                    initParticles();
                 }, 250);
             });
         });
     </script>
+
+    <script src="./js/site-guard.js"></script>
 </body>
 </html>

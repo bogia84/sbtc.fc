@@ -1,0 +1,14 @@
+[
+  {
+    "username": "admin",
+    "password": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "master": true,
+    "permissions": {
+      "players": true,
+      "matches": true,
+      "tournaments": true,
+      "content": true,
+      "settings": true
+    }
+  }
+]

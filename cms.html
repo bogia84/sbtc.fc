@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBTC FC — CMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --accent: #e82a63;
+            --accent-dark: #610d2c;
+            --bg: #0e0810;
+            --surface: #1a0d17;
+            --surface2: #241220;
+            --border: rgba(232, 42, 99, 0.25);
+            --text: #f0f0f0;
+            --muted: #999;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ---- LOGIN SCREEN ---- */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--bg);
+        }
+
+        .login-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .login-logo {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 36px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-control {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus { border-color: var(--accent); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary { background: var(--accent); color: #fff; width: 100%; margin-top: 8px; }
+        .btn-primary:hover { background: #ff3d73; box-shadow: 0 4px 20px rgba(232,42,99,0.4); }
+        .btn-sm { padding: 7px 16px; font-size: 0.85rem; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { background: #27ae60; }
+
+        #login-error {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 12px;
+            min-height: 20px;
+        }
+
+        /* ---- APP LAYOUT ---- */
+        #app { display: none; min-height: 100vh; }
+
+        .cms-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .cms-header-logo {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+
+        .cms-header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .cms-layout {
+            display: flex;
+            min-height: calc(100vh - 65px);
+        }
+
+        /* ---- SIDEBAR ---- */
+        .cms-sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+        }
+
+        .sidebar-section {
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0 12px;
+            margin-bottom: 6px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .sidebar-link:hover { background: var(--surface2); color: var(--text); }
+        .sidebar-link.active { background: rgba(232,42,99,0.15); color: var(--accent); }
+        .sidebar-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+        /* ---- MAIN PANEL ---- */
+        .cms-main {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .panel-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .panel-title span { color: var(--accent); }
+
+        /* ---- TOAST ---- */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 22px;
+            font-size: 0.95rem;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+            max-width: 320px;
+        }
+
+        #toast.show { opacity: 1; transform: translateY(0); }
+        #toast.success { border-color: var(--success); color: var(--success); }
+        #toast.error { border-color: var(--danger); color: var(--danger); }
+
+        /* ---- PLAYER TABLE ---- */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: var(--surface2);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(232,42,99,0.08);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(232,42,99,0.04); }
+
+        .player-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+        }
+
+        .player-thumb-placeholder {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 1.2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-pos { background: rgba(232,42,99,0.15); color: var(--accent); }
+        .badge-role { background: rgba(46,204,113,0.15); color: var(--success); }
+
+        .row-actions { display: flex; gap: 8px; }
+
+        /* ---- MODAL / DRAWER ---- */
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+        }
+
+        .drawer-overlay.show { display: flex; justify-content: flex-end; }
+
+        .drawer {
+            width: 480px;
+            max-width: 95vw;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            height: 100%;
+            overflow-y: auto;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: slideIn 0.25s ease;
+        }
+
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        .drawer-title {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--text);
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .field-row { display: flex; gap: 12px; }
+        .field-row .field-group { flex: 1; }
+
+        .photo-preview {
+            width: 100%;
+            height: 180px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: var(--surface2);
+            border: 1px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+            overflow: hidden;
+        }
+
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+        .drawer-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ---- MATCH LIST ---- */
+        .match-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .match-item-info { display: flex; align-items: center; gap: 16px; }
+        .match-day {
+            width: 52px;
+            height: 52px;
+            background: rgba(232,42,99,0.15);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-weight: 900;
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+
+        .match-day small { font-size: 0.6rem; color: var(--muted); font-weight: 500; letter-spacing: 1px; margin-top: 2px; }
+        .match-opponent { font-size: 1.1rem; font-weight: 700; }
+        .match-icon { font-size: 1.8rem; }
+
+        /* ---- TOURNAMENT LIST ---- */
+        .tournament-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .tournament-card-body { flex: 1; }
+        .tournament-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+        .tournament-card .tc-date { color: var(--accent); font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; }
+        .tournament-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+
+        /* ---- CONTENT EDITOR ---- */
+        .content-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .content-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .about-paragraphs { display: flex; flex-direction: column; gap: 12px; }
+
+        .about-para-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .about-para-row textarea {
+            flex: 1;
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* ---- SETTINGS ---- */
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-row:last-child { border-bottom: none; }
+
+        .settings-row-info h4 { font-size: 1rem; margin-bottom: 4px; }
+        .settings-row-info p { font-size: 0.85rem; color: var(--muted); }
+
+        .toggle-switch {
+            width: 52px;
+            height: 28px;
+            background: var(--surface2);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.on { background: var(--accent); border-color: var(--accent); }
+
+        .toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.2s;
+        }
+
+        .toggle-switch.on .toggle-knob { left: 27px; }
+
+        /* ---- DRAG HANDLE ---- */
+        .drag-handle {
+            cursor: grab;
+            color: var(--muted);
+            font-size: 1.2rem;
+            padding: 0 8px;
+            user-select: none;
+        }
+
+        .drag-handle:active { cursor: grabbing; }
+
+        .sortable-ghost { opacity: 0.3; }
+    </style>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen">
+    <div class="login-box">
+        <div class="login-logo">SBTC FC</div>
+        <div class="login-subtitle">Content Management</div>
+        <div class="form-group">
+            <label>Username</label>
+            <input class="form-control" id="login-user" type="text" autocomplete="username">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input class="form-control" id="login-pass" type="password" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary" id="login-btn">Đăng nhập</button>
+        <div id="login-error"></div>
+    </div>
+</div>
+
+<!-- ===== CMS APP ===== -->
+<div id="app">
+    <header class="cms-header">
+        <div class="cms-header-logo">SBTC FC — CMS</div>
+        <div class="cms-header-right">
+            <span id="cms-username"></span>
+            <button class="btn btn-ghost btn-sm" id="btn-logout">Đăng xuất</button>
+            <a href="index.html" target="_blank" class="btn btn-ghost btn-sm">Xem Site ↗</a>
+        </div>
+    </header>
+
+    <div class="cms-layout">
+        <aside class="cms-sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Nội Dung</div>
+                <div class="sidebar-link active" data-panel="players">
+                    <span class="sidebar-icon">👥</span> Cầu Thủ
+                </div>
+                <div class="sidebar-link" data-panel="coaches">
+                    <span class="sidebar-icon">🎽</span> Huấn Luyện Viên
+                </div>
+                <div class="sidebar-link" data-panel="matches">
+                    <span class="sidebar-icon">📅</span> Lịch Thi Đấu
+                </div>
+                <div class="sidebar-link" data-panel="tournaments">
+                    <span class="sidebar-icon">🏆</span> Giải Đấu
+                </div>
+            </div>
+            <div class="sidebar-section" style="margin-top:16px;">
+                <div class="sidebar-label">Cài Đặt</div>
+                <div class="sidebar-link" data-panel="content">
+                    <span class="sidebar-icon">✏️</span> Nội Dung Site
+                </div>
+                <div class="sidebar-link" data-panel="settings">
+                    <span class="sidebar-icon">⚙️</span> Cài Đặt Site
+                </div>
+            </div>
+        </aside>
+
+        <main class="cms-main">
+
+            <!-- ===== PLAYERS PANEL ===== -->
+            <div class="panel active" id="panel-players">
+                <div class="panel-header">
+                    <h1 class="panel-title">Danh Sách <span>Cầu Thủ</span></h1>
+                    <button class="btn btn-primary btn-sm" id="btn-add-player">+ Thêm Cầu Thủ</button>
+                </div>
+                <table class="data-table" id="players-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Ảnh</th>
+                            <th>Tên</th>
+                            <th>Số</th>
+                            <th>Vị Trí</th>
+                            <th>Social</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="players-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- ===== COACHES PANEL ===== -->
+            <div class="panel" id="panel-coaches">
+                <div class="panel-header">
+                    <h1 class="panel-title">Ban <span>Huấn Luyện</span></h1>
+                    <button class="btn btn-primary btn-sm" id="btn-add-coach">+ Thêm HLV</button>
+                </div>
+                <table class="data-table" id="coaches-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Ảnh</th>
+                            <th>Tên</th>
+                            <th>Vai Trò</th>
+                            <th>Social</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="coaches-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- ===== MATCHES PANEL ===== -->
+            <div class="panel" id="panel-matches">
+                <div class="panel-header">
+                    <h1 class="panel-title">Lịch <span>Thi Đấu</span></h1>
+                    <button class="btn btn-primary btn-sm" id="btn-add-match">+ Thêm Trận</button>
+                </div>
+                <div id="matches-list"></div>
+            </div>
+
+            <!-- ===== TOURNAMENTS PANEL ===== -->
+            <div class="panel" id="panel-tournaments">
+                <div class="panel-header">
+                    <h1 class="panel-title">Thông Tin <span>Giải Đấu</span></h1>
+                    <button class="btn btn-primary btn-sm" id="btn-add-tournament">+ Thêm Giải</button>
+                </div>
+                <div id="tournaments-list"></div>
+            </div>
+
+            <!-- ===== SITE CONTENT PANEL ===== -->
+            <div class="panel" id="panel-content">
+                <div class="panel-header">
+                    <h1 class="panel-title">Nội Dung <span>Site</span></h1>
+                    <button class="btn btn-primary btn-sm" id="btn-save-content">Lưu Tất Cả</button>
+                </div>
+
+                <div class="content-section">
+                    <div class="content-section-title">Thông Tin Chung</div>
+                    <div class="field-row">
+                        <div class="field-group">
+                            <label class="field-label">Logo Text</label>
+                            <input class="form-control" id="fc-logo" type="text">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Page Title (tab)</label>
+                            <input class="form-control" id="fc-page-title" type="text">
+                        </div>
+                    </div>
+                    <div class="field-group" style="margin-top:14px;">
+                        <label class="field-label">Header Title</label>
+                        <input class="form-control" id="fc-header-title" type="text">
+                    </div>
+                    <div class="field-row" style="margin-top:14px;">
+                        <div class="field-group">
+                            <label class="field-label">Tab: Cầu Thủ</label>
+                            <input class="form-control" id="fc-tab-players" type="text">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Tab: Huấn Luyện</label>
+                            <input class="form-control" id="fc-tab-coaches" type="text">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="content-section-title">Phần Giới Thiệu</div>
+                    <div class="field-group" style="margin-bottom:14px;">
+                        <label class="field-label">Tiêu Đề Modal</label>
+                        <input class="form-control" id="fc-about-title" type="text">
+                    </div>
+                    <label class="field-label" style="margin-bottom:8px;">Đoạn Văn</label>
+                    <div class="about-paragraphs" id="about-paragraphs"></div>
+                    <button class="btn btn-ghost btn-sm" id="btn-add-para" style="margin-top:12px;">+ Thêm đoạn</button>
+                </div>
+            </div>
+
+            <!-- ===== SETTINGS PANEL ===== -->
+            <div class="panel" id="panel-settings">
+                <div class="panel-header">
+                    <h1 class="panel-title">Cài Đặt <span>Site</span></h1>
+                </div>
+
+                <div class="content-section">
+                    <div class="content-section-title">Trạng Thái Site</div>
+
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <h4>Site đang hoạt động (Published)</h4>
+                            <p>Tắt để bật chế độ bảo trì — khách không thể xem site.</p>
+                        </div>
+                        <div class="toggle-switch on" id="toggle-published">
+                            <div class="toggle-knob"></div>
+                        </div>
+                    </div>
+
+                    <div class="settings-row">
+                        <div class="settings-row-info">
+                            <h4>Mật Khẩu Bypass</h4>
+                            <p>Cho phép xem site khi đang bảo trì. Để trống để không có bypass.</p>
+                        </div>
+                        <input class="form-control" id="bypass-password" type="text" placeholder="(không có)" style="width:180px;">
+                    </div>
+
+                    <div style="margin-top:20px;">
+                        <button class="btn btn-primary btn-sm" id="btn-save-status">Lưu Trạng Thái</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<!-- ===== PLAYER / COACH DRAWER ===== -->
+<div class="drawer-overlay" id="member-drawer-overlay">
+    <div class="drawer" id="member-drawer">
+        <div class="drawer-title" id="drawer-title">Thêm Cầu Thủ</div>
+
+        <div class="field-group">
+            <label class="field-label">Ảnh (URL)</label>
+            <input class="form-control" id="d-photo" type="url" placeholder="https://...">
+        </div>
+        <div class="photo-preview" id="d-photo-preview">
+            <span>Nhập URL ảnh để xem preview</span>
+        </div>
+
+        <div class="field-row">
+            <div class="field-group" style="flex:2">
+                <label class="field-label">Tên</label>
+                <input class="form-control" id="d-name" type="text" placeholder="Tên hiển thị">
+            </div>
+            <div class="field-group" id="d-num-group">
+                <label class="field-label">Số</label>
+                <input class="form-control" id="d-num" type="number" min="1" max="99" placeholder="10">
+            </div>
+        </div>
+
+        <div class="field-group" id="d-pos-group">
+            <label class="field-label">Vị Trí</label>
+            <select class="form-control" id="d-pos">
+                <option value="GK">GK — Thủ Môn</option>
+                <option value="CB">CB — Trung Vệ</option>
+                <option value="LB">LB — Hậu Vệ Trái</option>
+                <option value="RB">RB — Hậu Vệ Phải</option>
+                <option value="CDM">CDM — Tiền Vệ Phòng Thủ</option>
+                <option value="CM">CM — Tiền Vệ Trung Tâm</option>
+                <option value="CAM">CAM — Tiền Vệ Tấn Công</option>
+                <option value="LW">LW — Tiền Vệ Trái</option>
+                <option value="RW">RW — Tiền Vệ Phải</option>
+                <option value="ST">ST — Tiền Đạo</option>
+                <option value="FW">FW — Tiền Đạo</option>
+            </select>
+        </div>
+
+        <div class="field-group" id="d-role-group" style="display:none;">
+            <label class="field-label">Vai Trò</label>
+            <input class="form-control" id="d-role" type="text" placeholder="Head Coach">
+        </div>
+
+        <div class="content-section-title" style="font-size:0.8rem;margin-bottom:0;">Liên Kết Mạng Xã Hội</div>
+
+        <div class="field-group">
+            <label class="field-label">Facebook URL</label>
+            <input class="form-control" id="d-fb" type="url" placeholder="https://facebook.com/...">
+        </div>
+        <div class="field-group">
+            <label class="field-label">YouTube URL</label>
+            <input class="form-control" id="d-yt" type="url" placeholder="https://youtube.com/...">
+        </div>
+        <div class="field-group">
+            <label class="field-label">NimoTV URL</label>
+            <input class="form-control" id="d-nimo" type="url" placeholder="https://nimo.tv/...">
+        </div>
+
+        <div class="drawer-footer">
+            <button class="btn btn-primary" id="drawer-save-btn" style="flex:1">Lưu</button>
+            <button class="btn btn-ghost" id="drawer-cancel-btn">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MATCH DRAWER ===== -->
+<div class="drawer-overlay" id="match-drawer-overlay">
+    <div class="drawer">
+        <div class="drawer-title" id="match-drawer-title">Thêm Trận Đấu</div>
+
+        <div class="field-group">
+            <label class="field-label">Ngày trong tháng (1-31)</label>
+            <input class="form-control" id="md-day" type="number" min="1" max="31">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Đối Thủ</label>
+            <input class="form-control" id="md-opponent" type="text" placeholder="Tên đội đối thủ">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Icon / Emoji</label>
+            <input class="form-control" id="md-icon" type="text" placeholder="🦅">
+        </div>
+
+        <div class="drawer-footer">
+            <button class="btn btn-primary" id="match-save-btn" style="flex:1">Lưu</button>
+            <button class="btn btn-ghost" id="match-cancel-btn">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== TOURNAMENT DRAWER ===== -->
+<div class="drawer-overlay" id="tour-drawer-overlay">
+    <div class="drawer">
+        <div class="drawer-title" id="tour-drawer-title">Thêm Giải Đấu</div>
+
+        <div class="field-group">
+            <label class="field-label">Tên Giải Đấu</label>
+            <input class="form-control" id="td-title" type="text" placeholder="VCS Mùa Xuân 2026">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Thời Gian</label>
+            <input class="form-control" id="td-date" type="text" placeholder="Tháng 2 - Tháng 4, 2026">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Mô Tả</label>
+            <textarea class="form-control" id="td-desc" rows="4" style="resize:vertical;" placeholder="Mô tả ngắn về giải đấu..."></textarea>
+        </div>
+
+        <div class="drawer-footer">
+            <button class="btn btn-primary" id="tour-save-btn" style="flex:1">Lưu</button>
+            <button class="btn btn-ghost" id="tour-cancel-btn">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { getPlayers, savePlayers, getMatches, saveMatches, getTournaments, saveTournaments, getSiteContent, saveSiteContent, getSiteStatus, saveSiteStatus } from './js/github-storage.js';
+
+// ===== AUTH =====
+async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+let currentUser = null;
+
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+async function doLogin() {
+    const username = document.getElementById('login-user').value.trim();
+    const password = document.getElementById('login-pass').value;
+    const errEl = document.getElementById('login-error');
+    errEl.textContent = '';
+
+    if (!username || !password) { errEl.textContent = 'Vui lòng nhập đầy đủ thông tin.'; return; }
+
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            sessionStorage.setItem('cms_token', data.token);
+            sessionStorage.setItem('cms_user', username);
+            currentUser = { username, permissions: data.permissions, master: data.master };
+            showApp();
+        } else {
+            // Fallback: client-side check against users.json
+            const hash = await sha256(password);
+            const usersRes = await fetch(`data/users.json?t=${Date.now()}`);
+            const users = await usersRes.json();
+            const user = users.find(u => u.username === username && u.password === hash);
+            if (user) {
+                sessionStorage.setItem('cms_user', username);
+                currentUser = { username, permissions: user.permissions, master: user.master };
+                showApp();
+            } else {
+                errEl.textContent = 'Sai tên đăng nhập hoặc mật khẩu.';
+            }
+        }
+    } catch {
+        try {
+            const hash = await sha256(password);
+            const usersRes = await fetch(`data/users.json?t=${Date.now()}`);
+            const users = await usersRes.json();
+            const user = users.find(u => u.username === username && u.password === hash);
+            if (user) {
+                sessionStorage.setItem('cms_user', username);
+                currentUser = { username, permissions: user.permissions, master: user.master };
+                showApp();
+            } else {
+                errEl.textContent = 'Sai tên đăng nhập hoặc mật khẩu.';
+            }
+        } catch {
+            errEl.textContent = 'Không thể kết nối. Thử lại sau.';
+        }
+    }
+}
+
+function showApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('cms-username').textContent = currentUser.username;
+    initApp();
+}
+
+document.getElementById('btn-logout').addEventListener('click', () => {
+    sessionStorage.clear();
+    location.reload();
+});
+
+// ===== TOAST =====
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type}`;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ===== NAVIGATION =====
+function navigate(panel) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    document.getElementById(`panel-${panel}`).classList.add('active');
+    document.querySelector(`.sidebar-link[data-panel="${panel}"]`).classList.add('active');
+}
+
+document.querySelectorAll('.sidebar-link').forEach(link => {
+    link.addEventListener('click', () => navigate(link.dataset.panel));
+});
+
+// ===== STATE =====
+let state = { players: [], coaches: [], matches: [], tournaments: [], siteContent: {}, siteStatus: {} };
+
+async function initApp() {
+    try {
+        const [pd, md, td, sc, ss] = await Promise.all([
+            getPlayers(), getMatches(), getTournaments(), getSiteContent(), getSiteStatus()
+        ]);
+        state.players = pd.players || [];
+        state.coaches = pd.coaches || [];
+        state.matches = md.matches || [];
+        state.tournaments = td.tournaments || [];
+        state.siteContent = sc;
+        state.siteStatus = ss;
+    } catch (e) {
+        showToast('Lỗi tải dữ liệu: ' + e.message, 'error');
+    }
+
+    renderPlayers();
+    renderCoaches();
+    renderMatches();
+    renderTournaments();
+    renderSiteContent();
+    renderSettings();
+}
+
+// ===== SAVE HELPERS =====
+async function savePlayersData() {
+    await savePlayers({ players: state.players, coaches: state.coaches });
+}
+
+// ===== PLAYERS =====
+function renderPlayers() {
+    const tbody = document.getElementById('players-tbody');
+    tbody.innerHTML = state.players.map((p, i) => `
+        <tr data-index="${i}">
+            <td><span class="drag-handle">⠿</span></td>
+            <td>${p.photo ? `<img class="player-thumb" src="${p.photo}" alt="${p.name}">` : `<div class="player-thumb-placeholder">?</div>`}</td>
+            <td><strong>${p.name}</strong></td>
+            <td>${p.num}</td>
+            <td><span class="badge badge-pos">${p.pos}</span></td>
+            <td>
+                ${p.fb ? '<span title="FB">📘</span>' : ''}
+                ${p.yt ? '<span title="YT">📺</span>' : ''}
+                ${p.nimo ? '<span title="Nimo">🎮</span>' : ''}
+            </td>
+            <td>
+                <div class="row-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="editMember('player', ${i})">Sửa</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteMember('player', ${i})">Xóa</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderCoaches() {
+    const tbody = document.getElementById('coaches-tbody');
+    tbody.innerHTML = state.coaches.map((c, i) => `
+        <tr data-index="${i}">
+            <td><span class="drag-handle">⠿</span></td>
+            <td>${c.photo ? `<img class="player-thumb" src="${c.photo}" alt="${c.name}">` : `<div class="player-thumb-placeholder">?</div>`}</td>
+            <td><strong>${c.name}</strong></td>
+            <td><span class="badge badge-role">${c.role}</span></td>
+            <td>
+                ${c.fb ? '<span title="FB">📘</span>' : ''}
+                ${c.yt ? '<span title="YT">📺</span>' : ''}
+                ${c.nimo ? '<span title="Nimo">🎮</span>' : ''}
+            </td>
+            <td>
+                <div class="row-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="editMember('coach', ${i})">Sửa</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteMember('coach', ${i})">Xóa</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Drawer state
+let drawerMode = { type: null, action: null, index: null };
+
+function openMemberDrawer(type, action, index) {
+    drawerMode = { type, action, index };
+
+    const isPlayer = type === 'player';
+    document.getElementById('drawer-title').textContent = action === 'add'
+        ? (isPlayer ? 'Thêm Cầu Thủ' : 'Thêm HLV')
+        : (isPlayer ? 'Sửa Cầu Thủ' : 'Sửa HLV');
+
+    document.getElementById('d-num-group').style.display = isPlayer ? '' : 'none';
+    document.getElementById('d-pos-group').style.display = isPlayer ? '' : 'none';
+    document.getElementById('d-role-group').style.display = isPlayer ? 'none' : '';
+
+    const item = action === 'edit'
+        ? (isPlayer ? state.players[index] : state.coaches[index])
+        : {};
+
+    document.getElementById('d-photo').value = item.photo || '';
+    document.getElementById('d-name').value = item.name || '';
+    document.getElementById('d-num').value = item.num || '';
+    document.getElementById('d-pos').value = item.pos || 'FW';
+    document.getElementById('d-role').value = item.role || '';
+    document.getElementById('d-fb').value = item.fb || '';
+    document.getElementById('d-yt').value = item.yt || '';
+    document.getElementById('d-nimo').value = item.nimo || '';
+    updatePhotoPreview(item.photo || '');
+
+    document.getElementById('member-drawer-overlay').classList.add('show');
+}
+
+function updatePhotoPreview(url) {
+    const preview = document.getElementById('d-photo-preview');
+    if (url) {
+        preview.innerHTML = `<img src="${url}" alt="preview" onerror="this.parentElement.innerHTML='<span>URL không hợp lệ</span>'">`;
+    } else {
+        preview.innerHTML = '<span>Nhập URL ảnh để xem preview</span>';
+    }
+}
+
+document.getElementById('d-photo').addEventListener('input', e => updatePhotoPreview(e.target.value));
+
+document.getElementById('drawer-cancel-btn').addEventListener('click', () => {
+    document.getElementById('member-drawer-overlay').classList.remove('show');
+});
+
+document.getElementById('member-drawer-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('member-drawer-overlay'))
+        document.getElementById('member-drawer-overlay').classList.remove('show');
+});
+
+document.getElementById('drawer-save-btn').addEventListener('click', async () => {
+    const { type, action, index } = drawerMode;
+    const isPlayer = type === 'player';
+
+    const item = {
+        name: document.getElementById('d-name').value.trim(),
+        photo: document.getElementById('d-photo').value.trim(),
+        fb: document.getElementById('d-fb').value.trim(),
+        yt: document.getElementById('d-yt').value.trim(),
+        nimo: document.getElementById('d-nimo').value.trim(),
+    };
+
+    if (!item.name) { showToast('Vui lòng nhập tên.', 'error'); return; }
+
+    if (isPlayer) {
+        item.num = parseInt(document.getElementById('d-num').value) || 0;
+        item.pos = document.getElementById('d-pos').value;
+        if (action === 'add') state.players.push(item);
+        else state.players[index] = item;
+    } else {
+        item.role = document.getElementById('d-role').value.trim();
+        if (action === 'add') state.coaches.push(item);
+        else state.coaches[index] = item;
+    }
+
+    try {
+        await savePlayersData();
+        showToast('Đã lưu thành công!');
+        document.getElementById('member-drawer-overlay').classList.remove('show');
+        renderPlayers();
+        renderCoaches();
+    } catch (e) {
+        showToast('Lỗi lưu: ' + e.message, 'error');
+    }
+});
+
+document.getElementById('btn-add-player').addEventListener('click', () => openMemberDrawer('player', 'add', null));
+document.getElementById('btn-add-coach').addEventListener('click', () => openMemberDrawer('coach', 'add', null));
+
+window.editMember = (type, index) => openMemberDrawer(type, 'edit', index);
+window.deleteMember = async (type, index) => {
+    if (!confirm('Xóa thành viên này?')) return;
+    if (type === 'player') state.players.splice(index, 1);
+    else state.coaches.splice(index, 1);
+    try {
+        await savePlayersData();
+        showToast('Đã xóa.');
+        renderPlayers();
+        renderCoaches();
+    } catch (e) {
+        showToast('Lỗi xóa: ' + e.message, 'error');
+    }
+};
+
+// ===== MATCHES =====
+function renderMatches() {
+    const list = document.getElementById('matches-list');
+    if (!state.matches.length) {
+        list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">Chưa có trận đấu nào.</p>';
+        return;
+    }
+    list.innerHTML = state.matches.map((m, i) => `
+        <div class="match-item">
+            <div class="match-item-info">
+                <div class="match-day">${m.day}<small>DAY</small></div>
+                <div>
+                    <div class="match-opponent">${m.opponent}</div>
+                    <div style="color:var(--muted);font-size:0.85rem;">Ngày ${m.day} trong tháng</div>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;">
+                <span class="match-icon">${m.icon}</span>
+                <div class="row-actions">
+                    <button class="btn btn-ghost btn-sm" onclick="editMatch(${i})">Sửa</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteMatch(${i})">Xóa</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+let matchEditIndex = null;
+
+function openMatchDrawer(index) {
+    matchEditIndex = index;
+    const m = index !== null ? state.matches[index] : {};
+    document.getElementById('match-drawer-title').textContent = index !== null ? 'Sửa Trận Đấu' : 'Thêm Trận Đấu';
+    document.getElementById('md-day').value = m.day || '';
+    document.getElementById('md-opponent').value = m.opponent || '';
+    document.getElementById('md-icon').value = m.icon || '';
+    document.getElementById('match-drawer-overlay').classList.add('show');
+}
+
+document.getElementById('btn-add-match').addEventListener('click', () => openMatchDrawer(null));
+window.editMatch = i => openMatchDrawer(i);
+document.getElementById('match-cancel-btn').addEventListener('click', () => document.getElementById('match-drawer-overlay').classList.remove('show'));
+document.getElementById('match-drawer-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('match-drawer-overlay')) document.getElementById('match-drawer-overlay').classList.remove('show');
+});
+
+document.getElementById('match-save-btn').addEventListener('click', async () => {
+    const day = parseInt(document.getElementById('md-day').value);
+    const opponent = document.getElementById('md-opponent').value.trim();
+    const icon = document.getElementById('md-icon').value.trim();
+
+    if (!day || !opponent) { showToast('Vui lòng điền đầy đủ.', 'error'); return; }
+
+    const match = { day, opponent, icon: icon || '⚽', month: null, year: null };
+    if (matchEditIndex !== null) state.matches[matchEditIndex] = match;
+    else state.matches.push(match);
+
+    state.matches.sort((a, b) => a.day - b.day);
+
+    try {
+        await saveMatches({ matches: state.matches });
+        showToast('Đã lưu lịch thi đấu!');
+        document.getElementById('match-drawer-overlay').classList.remove('show');
+        renderMatches();
+    } catch (e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
+});
+
+window.deleteMatch = async i => {
+    if (!confirm('Xóa trận này?')) return;
+    state.matches.splice(i, 1);
+    try {
+        await saveMatches({ matches: state.matches });
+        showToast('Đã xóa trận.');
+        renderMatches();
+    } catch (e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
+};
+
+// ===== TOURNAMENTS =====
+function renderTournaments() {
+    const list = document.getElementById('tournaments-list');
+    if (!state.tournaments.length) {
+        list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">Chưa có giải đấu nào.</p>';
+        return;
+    }
+    list.innerHTML = state.tournaments.map((t, i) => `
+        <div class="tournament-card">
+            <div class="tournament-card-body">
+                <h3>🏆 ${t.title}</h3>
+                <div class="tc-date">📅 ${t.date}</div>
+                <p>${t.desc}</p>
+            </div>
+            <div class="row-actions" style="flex-direction:column;align-items:flex-end;">
+                <button class="btn btn-ghost btn-sm" onclick="editTournament(${i})">Sửa</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteTournament(${i})">Xóa</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+let tourEditIndex = null;
+
+function openTourDrawer(index) {
+    tourEditIndex = index;
+    const t = index !== null ? state.tournaments[index] : {};
+    document.getElementById('tour-drawer-title').textContent = index !== null ? 'Sửa Giải Đấu' : 'Thêm Giải Đấu';
+    document.getElementById('td-title').value = t.title || '';
+    document.getElementById('td-date').value = t.date || '';
+    document.getElementById('td-desc').value = t.desc || '';
+    document.getElementById('tour-drawer-overlay').classList.add('show');
+}
+
+document.getElementById('btn-add-tournament').addEventListener('click', () => openTourDrawer(null));
+window.editTournament = i => openTourDrawer(i);
+document.getElementById('tour-cancel-btn').addEventListener('click', () => document.getElementById('tour-drawer-overlay').classList.remove('show'));
+document.getElementById('tour-drawer-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('tour-drawer-overlay')) document.getElementById('tour-drawer-overlay').classList.remove('show');
+});
+
+document.getElementById('tour-save-btn').addEventListener('click', async () => {
+    const title = document.getElementById('td-title').value.trim();
+    const date = document.getElementById('td-date').value.trim();
+    const desc = document.getElementById('td-desc').value.trim();
+
+    if (!title) { showToast('Vui lòng nhập tên giải.', 'error'); return; }
+
+    const tour = { title, date, desc };
+    if (tourEditIndex !== null) state.tournaments[tourEditIndex] = tour;
+    else state.tournaments.push(tour);
+
+    try {
+        await saveTournaments({ tournaments: state.tournaments });
+        showToast('Đã lưu giải đấu!');
+        document.getElementById('tour-drawer-overlay').classList.remove('show');
+        renderTournaments();
+    } catch (e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
+});
+
+window.deleteTournament = async i => {
+    if (!confirm('Xóa giải đấu này?')) return;
+    state.tournaments.splice(i, 1);
+    try {
+        await saveTournaments({ tournaments: state.tournaments });
+        showToast('Đã xóa giải đấu.');
+        renderTournaments();
+    } catch (e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
+};
+
+// ===== SITE CONTENT =====
+function renderSiteContent() {
+    const sc = state.siteContent;
+    document.getElementById('fc-logo').value = sc.logoText || '';
+    document.getElementById('fc-page-title').value = sc.pageTitle || '';
+    document.getElementById('fc-header-title').value = sc.headerTitle || '';
+    document.getElementById('fc-tab-players').value = sc.tabPlayers || '';
+    document.getElementById('fc-tab-coaches').value = sc.tabCoaches || '';
+    document.getElementById('fc-about-title').value = sc.aboutTitle || '';
+    renderAboutParagraphs(sc.aboutParagraphs || []);
+}
+
+function renderAboutParagraphs(paras) {
+    const container = document.getElementById('about-paragraphs');
+    container.innerHTML = paras.map((p, i) => `
+        <div class="about-para-row">
+            <textarea class="form-control about-para" data-index="${i}" rows="3">${p}</textarea>
+            <button class="btn btn-danger btn-sm" onclick="removeAboutPara(${i})">✕</button>
+        </div>
+    `).join('');
+}
+
+window.removeAboutPara = i => {
+    const paras = getAboutParas();
+    paras.splice(i, 1);
+    renderAboutParagraphs(paras);
+};
+
+function getAboutParas() {
+    return Array.from(document.querySelectorAll('.about-para')).map(t => t.value);
+}
+
+document.getElementById('btn-add-para').addEventListener('click', () => {
+    const paras = getAboutParas();
+    paras.push('');
+    renderAboutParagraphs(paras);
+});
+
+document.getElementById('btn-save-content').addEventListener('click', async () => {
+    const sc = {
+        logoText: document.getElementById('fc-logo').value.trim(),
+        pageTitle: document.getElementById('fc-page-title').value.trim(),
+        headerTitle: document.getElementById('fc-header-title').value.trim(),
+        tabPlayers: document.getElementById('fc-tab-players').value.trim(),
+        tabCoaches: document.getElementById('fc-tab-coaches').value.trim(),
+        aboutTitle: document.getElementById('fc-about-title').value.trim(),
+        aboutParagraphs: getAboutParas().filter(p => p.trim()),
+    };
+
+    try {
+        await saveSiteContent(sc);
+        state.siteContent = sc;
+        showToast('Đã lưu nội dung site!');
+    } catch (e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
+});
+
+// ===== SETTINGS =====
+function renderSettings() {
+    const ss = state.siteStatus;
+    const toggle = document.getElementById('toggle-published');
+    if (ss.published) toggle.classList.add('on'); else toggle.classList.remove('on');
+    document.getElementById('bypass-password').value = ss.bypassPassword || '';
+}
+
+document.getElementById('toggle-published').addEventListener('click', function() {
+    this.classList.toggle('on');
+});
+
+document.getElementById('btn-save-status').addEventListener('click', async () => {
+    const published = document.getElementById('toggle-published').classList.contains('on');
+    const bypassPassword = document.getElementById('bypass-password').value.trim();
+
+    const ss = { published, bypassPassword };
+    try {
+        await saveSiteStatus(ss);
+        state.siteStatus = ss;
+        showToast('Đã lưu trạng thái site!');
+    } catch (e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
+});
+</script>
+</body>
+</html>
