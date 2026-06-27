@@ -37,6 +37,15 @@
       "pos": "LB"
     },
     {
+      "name": "TUẤN",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": "",
+      "num": 30,
+      "pos": "CAM"
+    },
+    {
       "name": "NOWAY",
       "num": 9,
       "pos": "ST",
@@ -116,15 +125,6 @@
       "fb": "",
       "yt": "",
       "nimo": ""
-    },
-    {
-      "name": "TUẤN",
-      "photo": "",
-      "fb": "",
-      "yt": "",
-      "nimo": "",
-      "num": 30,
-      "pos": "CAM"
     }
   ],
   "coaches": [
