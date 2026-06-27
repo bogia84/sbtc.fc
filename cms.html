@@ -528,6 +528,8 @@
         .drag-handle:active { cursor: grabbing; }
 
         .sortable-ghost { opacity: 0.3; }
+
+        .drag-over { outline: 2px solid var(--accent); background: rgba(99,102,241,0.08); }
     </style>
 </head>
 <body>
@@ -1014,6 +1016,50 @@ async function savePlayersData() {
     await savePlayers({ players: state.players, coaches: state.coaches });
 }
 
+// ===== DRAG-AND-DROP SORT =====
+function makeSortable(tbody, getArray, onDrop) {
+    let dragSrc = null;
+
+    tbody.querySelectorAll('tr').forEach(row => {
+        const handle = row.querySelector('.drag-handle');
+        if (handle) {
+            handle.addEventListener('mousedown', () => { row.draggable = true; });
+            handle.addEventListener('mouseup', () => { row.draggable = false; });
+        }
+
+        row.addEventListener('dragstart', e => {
+            dragSrc = row;
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => row.classList.add('sortable-ghost'), 0);
+        });
+
+        row.addEventListener('dragend', () => {
+            row.classList.remove('sortable-ghost');
+            tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over'));
+        });
+
+        row.addEventListener('dragover', e => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (row !== dragSrc) {
+                tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over'));
+                row.classList.add('drag-over');
+            }
+        });
+
+        row.addEventListener('drop', e => {
+            e.preventDefault();
+            if (!dragSrc || dragSrc === row) return;
+            const arr = getArray();
+            const from = parseInt(dragSrc.dataset.index);
+            const to = parseInt(row.dataset.index);
+            const [moved] = arr.splice(from, 1);
+            arr.splice(to, 0, moved);
+            onDrop();
+        });
+    });
+}
+
 // ===== PLAYERS =====
 function renderPlayers() {
     const tbody = document.getElementById('players-tbody');
@@ -1037,6 +1083,7 @@ function renderPlayers() {
             </td>
         </tr>
     `).join('');
+    makeSortable(tbody, () => state.players, () => { renderPlayers(); savePlayersData(); showToast('Đã cập nhật thứ tự'); });
 }
 
 function renderCoaches() {
@@ -1060,6 +1107,7 @@ function renderCoaches() {
             </td>
         </tr>
     `).join('');
+    makeSortable(tbody, () => state.coaches, () => { renderCoaches(); savePlayersData(); showToast('Đã cập nhật thứ tự'); });
 }
 
 // Drawer state
