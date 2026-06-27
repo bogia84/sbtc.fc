@@ -1,15 +1,6 @@
 {
   "players": [
     {
-      "name": "LEE MIN BEO",
-      "num": 7,
-      "pos": "LW",
-      "photo": "",
-      "fb": "",
-      "yt": "",
-      "nimo": ""
-    },
-    {
       "name": "MESS3",
       "photo": "",
       "fb": "",
@@ -17,6 +8,15 @@
       "nimo": "",
       "num": 3,
       "pos": "ST"
+    },
+    {
+      "name": "LEE MIN BEO",
+      "num": 7,
+      "pos": "LW",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
     },
     {
       "name": "BECKPHONG",
