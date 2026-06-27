@@ -1048,6 +1048,49 @@
     </div>
 </div>
 
+<!-- ===== PHOTO POPUP MODAL ===== -->
+<div class="photo-modal-overlay" id="photo-modal-overlay">
+    <div class="photo-modal">
+        <div class="photo-modal-header">
+            <h3>Cập Nhật Ảnh</h3>
+            <button class="pm-close" id="pm-close-btn">✕</button>
+        </div>
+        <div class="photo-modal-tabs">
+            <button class="photo-tab-btn active" data-tab="url">🔗 URL Ảnh</button>
+            <button class="photo-tab-btn" data-tab="upload">📁 Tải Lên</button>
+        </div>
+
+        <!-- URL Tab -->
+        <div id="tab-url-content">
+            <div class="field-group">
+                <label class="field-label">Dán URL ảnh</label>
+                <input class="form-control" id="pm-url" type="url" placeholder="https://...">
+            </div>
+            <div class="pm-preview" id="pm-url-preview">
+                <span>Nhập URL để xem trước</span>
+            </div>
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="tab-upload-content" style="display:none">
+            <div class="upload-drop-area" id="pm-upload-area">
+                <input type="file" id="pm-file" accept="image/*" style="display:none">
+                <div style="font-size:1.8rem;margin-bottom:8px;">📷</div>
+                <div style="font-weight:600;">Nhấn để chọn ảnh</div>
+                <div style="font-size:0.8rem;margin-top:6px;">JPG, PNG, GIF, WebP</div>
+            </div>
+            <div class="pm-preview" id="pm-upload-preview">
+                <span>Chưa chọn ảnh</span>
+            </div>
+        </div>
+
+        <div class="photo-modal-footer">
+            <button class="btn btn-primary" id="pm-confirm-btn" style="flex:1">Xác Nhận</button>
+            <button class="btn btn-ghost" id="pm-cancel-btn">Hủy</button>
+        </div>
+    </div>
+</div>
+
 <div id="toast"></div>
 
 <script type="module">
@@ -1232,10 +1275,15 @@ function renderPlayers() {
     tbody.innerHTML = state.players.map((p, i) => `
         <tr data-index="${i}">
             <td><span class="drag-handle">⠿</span></td>
-            <td>${p.photo ? `<img class="player-thumb" src="${p.photo}" alt="${p.name}">` : `<div class="player-thumb-placeholder">?</div>`}</td>
-            <td><strong>${p.name}</strong></td>
-            <td>${p.num}</td>
-            <td><span class="badge badge-pos">${p.pos}</span></td>
+            <td class="photo-cell" onclick="openPhotoModal('player', ${i})" style="padding:8px 16px;">
+                <div class="photo-wrap">
+                    ${p.photo ? `<img class="player-thumb" src="${p.photo}" alt="${p.name}">` : `<div class="player-thumb-placeholder">?</div>`}
+                    <div class="photo-cell-overlay">📷</div>
+                </div>
+            </td>
+            <td class="editable-cell" onclick="startCellEdit('player', ${i}, 'name', this)"><strong>${p.name}</strong></td>
+            <td class="editable-cell" onclick="startCellEdit('player', ${i}, 'num', this)">${p.num}</td>
+            <td class="editable-cell" onclick="startCellEdit('player', ${i}, 'pos', this)"><span class="badge badge-pos">${p.pos}</span></td>
             <td>
                 ${p.fb ? '<span title="FB">📘</span>' : ''}
                 ${p.yt ? '<span title="YT">📺</span>' : ''}
@@ -1257,9 +1305,14 @@ function renderCoaches() {
     tbody.innerHTML = state.coaches.map((c, i) => `
         <tr data-index="${i}">
             <td><span class="drag-handle">⠿</span></td>
-            <td>${c.photo ? `<img class="player-thumb" src="${c.photo}" alt="${c.name}">` : `<div class="player-thumb-placeholder">?</div>`}</td>
-            <td><strong>${c.name}</strong></td>
-            <td><span class="badge badge-role">${c.role}</span></td>
+            <td class="photo-cell" onclick="openPhotoModal('coach', ${i})" style="padding:8px 16px;">
+                <div class="photo-wrap">
+                    ${c.photo ? `<img class="player-thumb" src="${c.photo}" alt="${c.name}">` : `<div class="player-thumb-placeholder">?</div>`}
+                    <div class="photo-cell-overlay">📷</div>
+                </div>
+            </td>
+            <td class="editable-cell" onclick="startCellEdit('coach', ${i}, 'name', this)"><strong>${c.name}</strong></td>
+            <td class="editable-cell" onclick="startCellEdit('coach', ${i}, 'role', this)"><span class="badge badge-role">${c.role}</span></td>
             <td>
                 ${c.fb ? '<span title="FB">📘</span>' : ''}
                 ${c.yt ? '<span title="YT">📺</span>' : ''}
@@ -1648,6 +1701,156 @@ document.getElementById('btn-clear-github-config').addEventListener('click', () 
     document.getElementById('gh-token-input').value = '';
     document.getElementById('github-config-status').textContent = 'Đã xóa';
     document.getElementById('github-config-status').style.color = 'var(--muted)';
+});
+
+// ===== INLINE CELL EDITING =====
+window.startCellEdit = function(type, index, field, td) {
+    const arr = type === 'player' ? state.players : state.coaches;
+    const item = arr[index];
+    const currentVal = item[field] !== undefined ? item[field] : '';
+    const originalHTML = td.innerHTML;
+    let committed = false;
+
+    let input;
+    if (field === 'pos') {
+        input = document.createElement('select');
+        input.className = 'form-control cell-edit-input';
+        ['GK','CB','LB','RB','CDM','CM','CAM','LW','RW','ST','FW'].forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p; opt.textContent = p;
+            if (p === currentVal) opt.selected = true;
+            input.appendChild(opt);
+        });
+    } else {
+        input = document.createElement('input');
+        input.className = 'form-control cell-edit-input';
+        input.type = field === 'num' ? 'number' : 'text';
+        input.value = currentVal;
+        if (field === 'num') { input.min = 1; input.max = 99; input.style.width = '70px'; }
+    }
+
+    td.innerHTML = '';
+    td.appendChild(input);
+    input.focus();
+    if (typeof input.select === 'function' && field !== 'pos') input.select();
+
+    async function save() {
+        if (committed) return;
+        committed = true;
+        const newVal = field === 'num' ? (parseInt(input.value) || 0) : input.value.trim();
+        arr[index][field] = newVal;
+        try {
+            await savePlayersData();
+            showToast('Đã lưu!');
+        } catch(e) {
+            showToast('Lỗi: ' + e.message, 'error');
+        }
+        if (type === 'player') renderPlayers(); else renderCoaches();
+    }
+
+    function cancel() {
+        if (committed) return;
+        committed = true;
+        td.innerHTML = originalHTML;
+    }
+
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { input.removeEventListener('blur', save); cancel(); }
+    });
+};
+
+// ===== PHOTO POPUP MODAL =====
+let _photoTarget = { type: null, index: null };
+let _photoBase64 = null;
+
+window.openPhotoModal = function(type, index) {
+    _photoTarget = { type, index };
+    _photoBase64 = null;
+    const arr = type === 'player' ? state.players : state.coaches;
+    const currentUrl = (arr[index] && arr[index].photo) || '';
+
+    document.getElementById('pm-url').value = currentUrl;
+    updatePmUrlPreview(currentUrl);
+    document.getElementById('pm-file').value = '';
+    document.getElementById('pm-upload-preview').innerHTML = '<span>Chưa chọn ảnh</span>';
+    switchPmTab('url');
+    document.getElementById('photo-modal-overlay').classList.add('show');
+};
+
+function closePmModal() {
+    document.getElementById('photo-modal-overlay').classList.remove('show');
+}
+
+function switchPmTab(tab) {
+    document.querySelectorAll('.photo-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.getElementById('tab-url-content').style.display = tab === 'url' ? '' : 'none';
+    document.getElementById('tab-upload-content').style.display = tab === 'upload' ? '' : 'none';
+}
+
+function updatePmUrlPreview(url) {
+    const p = document.getElementById('pm-url-preview');
+    if (url) {
+        p.innerHTML = `<img src="${url}" alt="preview" onerror="this.parentElement.innerHTML='<span style=color:var(--danger)>URL không hợp lệ</span>'">`;
+    } else {
+        p.innerHTML = '<span>Nhập URL để xem trước</span>';
+    }
+}
+
+document.querySelectorAll('.photo-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchPmTab(btn.dataset.tab));
+});
+
+document.getElementById('pm-url').addEventListener('input', e => updatePmUrlPreview(e.target.value));
+
+document.getElementById('pm-upload-area').addEventListener('click', () => {
+    document.getElementById('pm-file').click();
+});
+
+document.getElementById('pm-file').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        _photoBase64 = e.target.result;
+        document.getElementById('pm-upload-preview').innerHTML =
+            `<img src="${_photoBase64}" alt="preview">`;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('pm-close-btn').addEventListener('click', closePmModal);
+document.getElementById('pm-cancel-btn').addEventListener('click', closePmModal);
+document.getElementById('photo-modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('photo-modal-overlay')) closePmModal();
+});
+
+document.getElementById('pm-confirm-btn').addEventListener('click', async () => {
+    const activeTab = document.querySelector('.photo-tab-btn.active').dataset.tab;
+    let photoUrl;
+
+    if (activeTab === 'url') {
+        photoUrl = document.getElementById('pm-url').value.trim();
+    } else {
+        if (!_photoBase64) { showToast('Vui lòng chọn ảnh.', 'error'); return; }
+        photoUrl = _photoBase64;
+    }
+
+    const { type, index } = _photoTarget;
+    const arr = type === 'player' ? state.players : state.coaches;
+    if (index === null || !arr[index]) return;
+
+    arr[index].photo = photoUrl;
+    try {
+        await savePlayersData();
+        showToast('Đã cập nhật ảnh!');
+        closePmModal();
+        renderPlayers();
+        renderCoaches();
+    } catch(e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
 });
 </script>
 </body>
