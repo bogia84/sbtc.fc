@@ -1,24 +1,156 @@
 {
   "players": [
-    { "name": "MESS3", "num": 10, "pos": "FW", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "LEE MIN BEO", "num": 7, "pos": "LW", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "BECKPHONG", "num": 11, "pos": "RW", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "NOWAY", "num": 9, "pos": "ST", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "TK", "num": 8, "pos": "CM", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "9KENKEN", "num": 6, "pos": "CDM", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "KIT", "num": 4, "pos": "CB", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "CLEAR", "num": 5, "pos": "CB", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "MESSBA", "num": 3, "pos": "LB", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "SHINV", "num": 2, "pos": "RB", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "PETER", "num": 1, "pos": "GK", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "SENA", "num": 15, "pos": "CDM", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "ZEROS", "num": 14, "pos": "LW", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "YIJIN", "num": 17, "pos": "CM", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "DIA1", "num": 12, "pos": "CAM", "photo": "", "fb": "", "yt": "", "nimo": "" }
+    {
+      "name": "MESS3",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": "",
+      "num": 3,
+      "pos": "ST"
+    },
+    {
+      "name": "LEE MIN BEO",
+      "num": 7,
+      "pos": "LW",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "BECKPHONG",
+      "num": 11,
+      "pos": "RW",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "NOWAY",
+      "num": 9,
+      "pos": "ST",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "TK",
+      "num": 8,
+      "pos": "CM",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "9KENKEN",
+      "num": 6,
+      "pos": "CDM",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "KIT",
+      "num": 4,
+      "pos": "CB",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "CLEAR",
+      "num": 5,
+      "pos": "CB",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "SHINV",
+      "num": 2,
+      "pos": "RB",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "PETER",
+      "num": 1,
+      "pos": "GK",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "SENA",
+      "num": 15,
+      "pos": "CDM",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "ZEROS",
+      "num": 14,
+      "pos": "LW",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "YIJIN",
+      "num": 17,
+      "pos": "CM",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    },
+    {
+      "name": "DIA1",
+      "num": 12,
+      "pos": "CAM",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    }
   ],
   "coaches": [
-    { "name": "THẦY BA", "role": "Head Coach", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "COACH REN", "role": "Tactical Coach", "photo": "", "fb": "", "yt": "", "nimo": "" },
-    { "name": "QUẢN LÝ", "role": "Team Manager", "photo": "", "fb": "", "yt": "", "nimo": "" }
+    {
+      "name": "TRẦN NGUYỄN PHƯƠNG TÂM",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": "",
+      "role": "Head Coach"
+    },
+    {
+      "name": "NHẬT TRƯỜNG",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": "",
+      "role": "XÁCH NƯỚC BỔ CAM"
+    },
+    {
+      "name": "QUẢN LÝ",
+      "role": "Team Manager",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": ""
+    }
   ]
 }
