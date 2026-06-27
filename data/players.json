@@ -10,6 +10,15 @@
       "pos": "ST"
     },
     {
+      "name": "CLEAR",
+      "photo": "",
+      "fb": "",
+      "yt": "",
+      "nimo": "",
+      "num": 18,
+      "pos": "CAM"
+    },
+    {
       "name": "LEE MIN BEO",
       "num": 7,
       "pos": "LW",
@@ -62,15 +71,6 @@
       "fb": "",
       "yt": "",
       "nimo": ""
-    },
-    {
-      "name": "CLEAR",
-      "photo": "",
-      "fb": "",
-      "yt": "",
-      "nimo": "",
-      "num": 18,
-      "pos": "CAM"
     },
     {
       "name": "SHINV",
