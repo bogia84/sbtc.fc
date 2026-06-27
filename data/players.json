@@ -65,12 +65,12 @@
     },
     {
       "name": "9KENKEN",
-      "num": 6,
-      "pos": "CDM",
       "photo": "",
       "fb": "",
       "yt": "",
-      "nimo": ""
+      "nimo": "",
+      "num": 9,
+      "pos": "CDM"
     },
     {
       "name": "KIT",
