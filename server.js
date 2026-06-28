@@ -144,7 +144,7 @@ app.post('/api/github-write', requireSession, async (req, res) => {
 });
 
 // ===== GOOGLE DRIVE IMAGE PROXY =====
-app.get('/api/proxy-image', requireSession, async (req, res) => {
+app.get('/api/proxy-image', async (req, res) => {
     const { id } = req.query;
     if (!id || !/^[a-zA-Z0-9_-]+$/.test(id)) {
         return res.status(400).json({ error: 'Invalid file ID' });

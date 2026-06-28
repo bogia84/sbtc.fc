@@ -1900,15 +1900,11 @@ document.getElementById('pm-confirm-btn').addEventListener('click', async () => 
         const raw = document.getElementById('pm-gdrive').value.trim();
         const fileId = extractGDriveId(raw);
         if (!fileId) { showToast('Link Google Drive không hợp lệ.', 'error'); return; }
-        const token = sessionStorage.getItem('cms_token');
-        if (!token) { showToast('Cần đăng nhập qua server để dùng Google Drive.', 'error'); return; }
         const confirmBtn = document.getElementById('pm-confirm-btn');
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Đang tải...';
         try {
-            const proxyRes = await fetch(`/api/proxy-image?id=${encodeURIComponent(fileId)}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const proxyRes = await fetch(`/api/proxy-image?id=${encodeURIComponent(fileId)}`);
             const data = await proxyRes.json();
             if (!proxyRes.ok) { showToast(data.error || 'Lỗi tải ảnh.', 'error'); return; }
             photoUrl = data.base64;
