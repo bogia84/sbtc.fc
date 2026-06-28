@@ -35,6 +35,15 @@
       "opponentIcon": "️⚽",
       "sbtcScore": null,
       "opponentScore": null
+    },
+    {
+      "competition": "Giao Hữu",
+      "round": "",
+      "date": "2026-07-13",
+      "opponent": "Sao Vàng",
+      "opponentIcon": "⭐",
+      "sbtcScore": null,
+      "opponentScore": null
     }
   ]
 }
