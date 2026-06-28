@@ -1784,13 +1784,26 @@ window.openPhotoModal = function(type, index) {
     const arr = type === 'player' ? state.players : state.coaches;
     const currentUrl = (arr[index] && arr[index].photo) || '';
 
-    document.getElementById('pm-url').value = currentUrl;
-    updatePmUrlPreview(currentUrl);
-    document.getElementById('pm-gdrive').value = '';
-    document.getElementById('pm-gdrive-preview').innerHTML = '<span>Nhập link Drive để xem trước</span>';
     document.getElementById('pm-file').value = '';
     document.getElementById('pm-upload-preview').innerHTML = '<span>Chưa chọn ảnh</span>';
-    switchPmTab('url');
+
+    const driveIdMatch = currentUrl.match(/drive\.google\.com\/uc\?export=view&id=([a-zA-Z0-9_-]+)/);
+    if (driveIdMatch) {
+        // Reconstruct share link so Drive tab can show it properly
+        const shareLink = `https://drive.google.com/file/d/${driveIdMatch[1]}/view`;
+        document.getElementById('pm-gdrive').value = shareLink;
+        updatePmGDrivePreview(shareLink);
+        document.getElementById('pm-url').value = '';
+        document.getElementById('pm-url-preview').innerHTML = '<span>Nhập URL để xem trước</span>';
+        switchPmTab('gdrive');
+    } else {
+        document.getElementById('pm-url').value = currentUrl;
+        updatePmUrlPreview(currentUrl);
+        document.getElementById('pm-gdrive').value = '';
+        document.getElementById('pm-gdrive-preview').innerHTML = '<span>Nhập link Drive để xem trước</span>';
+        switchPmTab('url');
+    }
+
     document.getElementById('photo-modal-overlay').classList.add('show');
 };
 
