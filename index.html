@@ -572,7 +572,7 @@
             <div class="nav-logo" id="nav-logo">SBTC FC</div>
             <div class="nav-links">
                 <a class="active" id="link-players">Đội Hình</a>
-                <a id="link-schedule">Lịch Thi Đấu</a>
+                <a href="schedule.html">Lịch Thi Đấu</a>
                 <a id="link-tournaments">Giải Đấu</a>
                 <a id="link-intro">Giới Thiệu</a>
             </div>
@@ -590,26 +590,7 @@
         <div class="grid-container" id="card-grid"></div>
     </div>
 
-    <div id="modal-schedule" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Lịch Thi Đấu</h2>
-            <div class="calendar-wrapper">
-                <div class="calendar-header">
-                    <button id="prev-month" class="nav-month-btn">&lt;</button>
-                    <div class="calendar-month-year" id="cal-month-year"></div>
-                    <button id="next-month" class="nav-month-btn">&gt;</button>
-                </div>
-                <div class="calendar-days-header">
-                    <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
-                </div>
-                <div class="calendar-grid" id="cal-grid"></div>
-            </div>
-            <button class="btn-primary" onclick="alert('Bán vé đang được phát triển!')">Mua Vé</button>
-        </div>
-    </div>
-
-    <div id="modal-tournaments" class="modal">
+<div id="modal-tournaments" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Thông Tin Giải Đấu</h2>
@@ -634,7 +615,7 @@
     </div>
 
     <script type="module">
-        import { getPlayers, getMatches, getTournaments, getSiteContent } from './js/github-storage.js';
+        import { getPlayers, getTournaments, getSiteContent } from './js/github-storage.js';
 
         document.addEventListener("DOMContentLoaded", async () => {
             const topNav = document.getElementById("top-nav");
@@ -735,67 +716,6 @@
 
             renderCards('players');
 
-            // --- Calendar ---
-            let matchData = {};
-            try {
-                const data = await getMatches();
-                (data.matches || []).forEach(m => { matchData[m.day] = { opponent: m.opponent, icon: m.icon }; });
-            } catch (e) {
-                console.warn('Could not load matches:', e);
-            }
-
-            let currentDate = new Date();
-            let currentMonth = currentDate.getMonth();
-            let currentYear = currentDate.getFullYear();
-
-            function renderCalendar(month, year) {
-                const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-                document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year}`;
-
-                let firstDay = new Date(year, month, 1).getDay();
-                let startDayIndex = firstDay === 0 ? 6 : firstDay - 1;
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const grid = document.getElementById('cal-grid');
-                grid.innerHTML = '';
-
-                for (let i = 0; i < startDayIndex; i++) {
-                    grid.innerHTML += `<div class="calendar-day empty"></div>`;
-                }
-
-                const today = new Date();
-                const isCurrentMonthYear = today.getMonth() === month && today.getFullYear() === year;
-
-                for (let i = 1; i <= daysInMonth; i++) {
-                    let dayClass = 'calendar-day';
-                    let innerHTML = i;
-                    if (isCurrentMonthYear && i === today.getDate()) dayClass += ' active';
-                    if (matchData[i]) {
-                        dayClass += ' has-match';
-                        innerHTML += `<div class="match-indicator"></div><div class="match-tooltip">vs ${matchData[i].opponent} ${matchData[i].icon}</div>`;
-                    }
-                    grid.innerHTML += `<div class="${dayClass}">${innerHTML}</div>`;
-                }
-
-                document.querySelectorAll('.calendar-day:not(.empty)').forEach(day => {
-                    day.addEventListener('click', function() {
-                        document.querySelectorAll('.calendar-day:not(.empty)').forEach(d => d.classList.remove('active'));
-                        this.classList.add('active');
-                    });
-                });
-            }
-
-            document.getElementById("prev-month").addEventListener("click", () => {
-                if (--currentMonth < 0) { currentMonth = 11; currentYear--; }
-                renderCalendar(currentMonth, currentYear);
-            });
-
-            document.getElementById("next-month").addEventListener("click", () => {
-                if (++currentMonth > 11) { currentMonth = 0; currentYear++; }
-                renderCalendar(currentMonth, currentYear);
-            });
-
-            renderCalendar(currentMonth, currentYear);
-
             // --- Tournaments Slider ---
             let tournaments = [];
             try {
@@ -830,23 +750,20 @@
             updateTournamentView();
 
             // --- Modals ---
-            const modalSchedule = document.getElementById("modal-schedule");
             const modalTournaments = document.getElementById("modal-tournaments");
             const modalIntro = document.getElementById("modal-intro");
 
-            document.getElementById("link-schedule").addEventListener("click", () => modalSchedule.classList.add("show"));
             document.getElementById("link-tournaments").addEventListener("click", () => modalTournaments.classList.add("show"));
             document.getElementById("link-intro").addEventListener("click", () => modalIntro.classList.add("show"));
 
             function closeAllModals() {
-                modalSchedule.classList.remove("show");
                 modalTournaments.classList.remove("show");
                 modalIntro.classList.remove("show");
             }
 
             document.querySelectorAll(".close-btn").forEach(btn => btn.addEventListener("click", closeAllModals));
             window.addEventListener("click", e => {
-                if (e.target === modalSchedule || e.target === modalIntro || e.target === modalTournaments) closeAllModals();
+                if (e.target === modalIntro || e.target === modalTournaments) closeAllModals();
             });
 
             document.getElementById("link-players").addEventListener("click", () => {

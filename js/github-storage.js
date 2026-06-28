@@ -3,6 +3,7 @@ import { REPO, GITHUB_TOKEN } from './config.js';
 const DATA_FILES = {
   players: 'data/players.json',
   matches: 'data/matches.json',
+  fixtures: 'data/fixtures.json',
   tournaments: 'data/tournaments.json',
   siteContent: 'data/site-content.json',
   siteStatus: 'data/site-status.json',
@@ -74,6 +75,8 @@ function withClientFallback(filename) {
 export async function savePlayers(data) { return withClientFallback(DATA_FILES.players)(data); }
 export async function getMatches() { return fetchJSON(DATA_FILES.matches); }
 export async function saveMatches(data) { return withClientFallback(DATA_FILES.matches)(data); }
+export async function getFixtures() { return fetchJSON(DATA_FILES.fixtures); }
+export async function saveFixtures(data) { return withClientFallback(DATA_FILES.fixtures)(data); }
 export async function getTournaments() { return fetchJSON(DATA_FILES.tournaments); }
 export async function saveTournaments(data) { return withClientFallback(DATA_FILES.tournaments)(data); }
 export async function getSiteContent() { return fetchJSON(DATA_FILES.siteContent); }

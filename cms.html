@@ -1004,16 +1004,34 @@
         <div class="drawer-title" id="match-drawer-title">Thêm Trận Đấu</div>
 
         <div class="field-group">
-            <label class="field-label">Ngày trong tháng (1-31)</label>
-            <input class="form-control" id="md-day" type="number" min="1" max="31">
+            <label class="field-label">Ngày Thi Đấu</label>
+            <input class="form-control" id="md-date" type="date">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Giải Đấu</label>
+            <input class="form-control" id="md-competition" type="text" placeholder="VCS Mùa Xuân 2026">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Vòng Đấu</label>
+            <input class="form-control" id="md-round" type="text" placeholder="Vòng Bảng">
         </div>
         <div class="field-group">
             <label class="field-label">Đối Thủ</label>
             <input class="form-control" id="md-opponent" type="text" placeholder="Tên đội đối thủ">
         </div>
         <div class="field-group">
-            <label class="field-label">Icon / Emoji</label>
+            <label class="field-label">Icon Đối Thủ (Emoji)</label>
             <input class="form-control" id="md-icon" type="text" placeholder="🦅">
+        </div>
+        <div style="display:flex;gap:12px;">
+            <div class="field-group" style="flex:1">
+                <label class="field-label">Tỷ Số SBTC</label>
+                <input class="form-control" id="md-sbtc-score" type="number" min="0" placeholder="(bỏ trống nếu chưa đá)">
+            </div>
+            <div class="field-group" style="flex:1">
+                <label class="field-label">Tỷ Số Đối Thủ</label>
+                <input class="form-control" id="md-opp-score" type="number" min="0" placeholder="(bỏ trống nếu chưa đá)">
+            </div>
         </div>
 
         <div class="drawer-footer">
@@ -1110,7 +1128,7 @@
 <div id="toast"></div>
 
 <script type="module">
-import { getPlayers, savePlayers, getMatches, saveMatches, getTournaments, saveTournaments, getSiteContent, saveSiteContent, getSiteStatus, saveSiteStatus, uploadImage } from './js/github-storage.js';
+import { getPlayers, savePlayers, getFixtures, saveFixtures, getTournaments, saveTournaments, getSiteContent, saveSiteContent, getSiteStatus, saveSiteStatus, uploadImage } from './js/github-storage.js';
 
 // ===== AUTH =====
 async function sha256(str) {
@@ -1211,16 +1229,16 @@ document.querySelectorAll('.sidebar-link').forEach(link => {
 });
 
 // ===== STATE =====
-let state = { players: [], coaches: [], matches: [], tournaments: [], siteContent: {}, siteStatus: {} };
+let state = { players: [], coaches: [], fixtures: [], tournaments: [], siteContent: {}, siteStatus: {} };
 
 async function initApp() {
     try {
-        const [pd, md, td, sc, ss] = await Promise.all([
-            getPlayers(), getMatches(), getTournaments(), getSiteContent(), getSiteStatus()
+        const [pd, fd, td, sc, ss] = await Promise.all([
+            getPlayers(), getFixtures(), getTournaments(), getSiteContent(), getSiteStatus()
         ]);
         state.players = pd.players || [];
         state.coaches = pd.coaches || [];
-        state.matches = md.matches || [];
+        state.fixtures = fd.fixtures || [];
         state.tournaments = td.tournaments || [];
         state.siteContent = sc;
         state.siteStatus = ss;
@@ -1451,42 +1469,51 @@ window.deleteMember = async (type, index) => {
     }
 };
 
-// ===== MATCHES =====
+// ===== MATCHES (FIXTURES) =====
 function renderMatches() {
     const list = document.getElementById('matches-list');
-    if (!state.matches.length) {
+    if (!state.fixtures.length) {
         list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">Chưa có trận đấu nào.</p>';
         return;
     }
-    list.innerHTML = state.matches.map((m, i) => `
+    list.innerHTML = state.fixtures.map((f, i) => {
+        const hasScore = f.sbtcScore !== null && f.sbtcScore !== undefined && f.sbtcScore !== '';
+        const scoreLabel = hasScore ? `${f.sbtcScore} - ${f.opponentScore}` : 'Sắp diễn ra';
+        const scoreBadgeColor = hasScore ? 'var(--accent)' : 'var(--success)';
+        const dateStr = f.date ? new Date(f.date + 'T00:00:00').toLocaleDateString('vi-VN') : '';
+        return `
         <div class="match-item">
             <div class="match-item-info">
-                <div class="match-day">${m.day}<small>DAY</small></div>
+                <div class="match-day" style="font-size:0.7rem;width:auto;padding:4px 8px;">${dateStr || '—'}</div>
                 <div>
-                    <div class="match-opponent">${m.opponent}</div>
-                    <div style="color:var(--muted);font-size:0.85rem;">Ngày ${m.day} trong tháng</div>
+                    <div class="match-opponent">SBTC FC vs ${f.opponent || 'TBD'} ${f.opponentIcon || ''}</div>
+                    <div style="color:var(--muted);font-size:0.82rem;">${f.competition || ''} · ${f.round || ''}</div>
                 </div>
             </div>
-            <div style="display:flex;align-items:center;gap:16px;">
-                <span class="match-icon">${m.icon}</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+                <span style="background:${scoreBadgeColor}22;color:${scoreBadgeColor};border:1px solid ${scoreBadgeColor}44;border-radius:6px;padding:3px 10px;font-size:0.8rem;font-weight:700;white-space:nowrap;">${scoreLabel}</span>
                 <div class="row-actions">
                     <button class="btn btn-ghost btn-sm" onclick="editMatch(${i})">Sửa</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteMatch(${i})">Xóa</button>
                 </div>
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 let matchEditIndex = null;
 
 function openMatchDrawer(index) {
     matchEditIndex = index;
-    const m = index !== null ? state.matches[index] : {};
+    const f = index !== null ? state.fixtures[index] : {};
     document.getElementById('match-drawer-title').textContent = index !== null ? 'Sửa Trận Đấu' : 'Thêm Trận Đấu';
-    document.getElementById('md-day').value = m.day || '';
-    document.getElementById('md-opponent').value = m.opponent || '';
-    document.getElementById('md-icon').value = m.icon || '';
+    document.getElementById('md-date').value = f.date || '';
+    document.getElementById('md-competition').value = f.competition || '';
+    document.getElementById('md-round').value = f.round || '';
+    document.getElementById('md-opponent').value = f.opponent || '';
+    document.getElementById('md-icon').value = f.opponentIcon || '';
+    document.getElementById('md-sbtc-score').value = (f.sbtcScore !== null && f.sbtcScore !== undefined) ? f.sbtcScore : '';
+    document.getElementById('md-opp-score').value = (f.opponentScore !== null && f.opponentScore !== undefined) ? f.opponentScore : '';
     document.getElementById('match-drawer-overlay').classList.add('show');
 }
 
@@ -1498,20 +1525,27 @@ document.getElementById('match-drawer-overlay').addEventListener('click', e => {
 });
 
 document.getElementById('match-save-btn').addEventListener('click', async () => {
-    const day = parseInt(document.getElementById('md-day').value);
+    const date = document.getElementById('md-date').value.trim();
+    const competition = document.getElementById('md-competition').value.trim();
+    const round = document.getElementById('md-round').value.trim();
     const opponent = document.getElementById('md-opponent').value.trim();
-    const icon = document.getElementById('md-icon').value.trim();
+    const opponentIcon = document.getElementById('md-icon').value.trim();
+    const sbtcRaw = document.getElementById('md-sbtc-score').value.trim();
+    const oppRaw = document.getElementById('md-opp-score').value.trim();
 
-    if (!day || !opponent) { showToast('Vui lòng điền đầy đủ.', 'error'); return; }
+    if (!opponent) { showToast('Vui lòng nhập tên đối thủ.', 'error'); return; }
 
-    const match = { day, opponent, icon: icon || '⚽', month: null, year: null };
-    if (matchEditIndex !== null) state.matches[matchEditIndex] = match;
-    else state.matches.push(match);
+    const sbtcScore = sbtcRaw !== '' ? parseInt(sbtcRaw) : null;
+    const opponentScore = oppRaw !== '' ? parseInt(oppRaw) : null;
 
-    state.matches.sort((a, b) => a.day - b.day);
+    const fixture = { competition, round, date, opponent, opponentIcon: opponentIcon || '⚽', sbtcScore, opponentScore };
+    if (matchEditIndex !== null) state.fixtures[matchEditIndex] = fixture;
+    else state.fixtures.push(fixture);
+
+    state.fixtures.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
     try {
-        await saveMatches({ matches: state.matches });
+        await saveFixtures({ fixtures: state.fixtures });
         showToast('Đã lưu lịch thi đấu!');
         document.getElementById('match-drawer-overlay').classList.remove('show');
         renderMatches();
@@ -1522,9 +1556,9 @@ document.getElementById('match-save-btn').addEventListener('click', async () => 
 
 window.deleteMatch = async i => {
     if (!confirm('Xóa trận này?')) return;
-    state.matches.splice(i, 1);
+    state.fixtures.splice(i, 1);
     try {
-        await saveMatches({ matches: state.matches });
+        await saveFixtures({ fixtures: state.fixtures });
         showToast('Đã xóa trận.');
         renderMatches();
     } catch (e) {

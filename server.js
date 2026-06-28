@@ -16,6 +16,7 @@ const DATA_DIR = path.join(__dirname, 'data');
 const ALLOWED_DATA_FILES = [
     'players.json',
     'matches.json',
+    'fixtures.json',
     'tournaments.json',
     'site-content.json',
     'site-status.json',
