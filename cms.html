@@ -1806,7 +1806,8 @@ function switchPmTab(tab) {
 }
 
 function isGDriveUrl(url) {
-    return /drive\.google\.com/.test(url);
+    // Only flag share-style links, not already-converted uc?export=view URLs
+    return /drive\.google\.com\/(file\/d\/|drive\/folders\/|open\?)/.test(url);
 }
 
 function updatePmUrlPreview(url) {
