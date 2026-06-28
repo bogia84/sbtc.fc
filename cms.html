@@ -1856,9 +1856,9 @@ function updatePmGDrivePreview(rawUrl) {
         p.innerHTML = '<span style="color:var(--danger)">Đây là link thư mục — hãy dùng link chia sẻ của từng file ảnh.</span>';
         return;
     }
-    const direct = gdriveLinkToDirectUrl(rawUrl);
-    if (!direct) { p.innerHTML = '<span style="color:var(--danger)">Link không hợp lệ — cần link dạng /file/d/...</span>'; return; }
-    p.innerHTML = `<img src="${direct}" referrerpolicy="no-referrer" alt="preview" onerror="this.parentElement.innerHTML='<span style=color:var(--danger)>Không tải được — kiểm tra file đã chia sẻ công khai chưa</span>'">`;
+    const fileId = extractGDriveId(rawUrl);
+    if (!fileId) { p.innerHTML = '<span style="color:var(--danger)">Link không hợp lệ — cần link dạng /file/d/...</span>'; return; }
+    p.innerHTML = `<span style="color:var(--success)">✓ Đã nhận link (ID: ${fileId})<br><small style="color:var(--muted)">Ảnh sẽ được tải khi bấm Xác Nhận</small></span>`;
 }
 
 document.querySelectorAll('.photo-tab-btn').forEach(btn => {
@@ -1898,8 +1898,26 @@ document.getElementById('pm-confirm-btn').addEventListener('click', async () => 
         photoUrl = document.getElementById('pm-url').value.trim();
     } else if (activeTab === 'gdrive') {
         const raw = document.getElementById('pm-gdrive').value.trim();
-        photoUrl = gdriveLinkToDirectUrl(raw);
-        if (!photoUrl) { showToast('Link Google Drive không hợp lệ.', 'error'); return; }
+        const fileId = extractGDriveId(raw);
+        if (!fileId) { showToast('Link Google Drive không hợp lệ.', 'error'); return; }
+        const token = sessionStorage.getItem('cms_token');
+        if (!token) { showToast('Cần đăng nhập qua server để dùng Google Drive.', 'error'); return; }
+        const confirmBtn = document.getElementById('pm-confirm-btn');
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Đang tải...';
+        try {
+            const proxyRes = await fetch(`/api/proxy-image?id=${encodeURIComponent(fileId)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await proxyRes.json();
+            if (!proxyRes.ok) { showToast(data.error || 'Lỗi tải ảnh.', 'error'); return; }
+            photoUrl = data.base64;
+        } catch {
+            showToast('Không kết nối được server.', 'error'); return;
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Xác Nhận';
+        }
     } else {
         if (!_photoBase64) { showToast('Vui lòng chọn ảnh.', 'error'); return; }
         photoUrl = _photoBase64;

@@ -143,6 +143,29 @@ app.post('/api/github-write', requireSession, async (req, res) => {
     res.json({ ok: true });
 });
 
+// ===== GOOGLE DRIVE IMAGE PROXY =====
+app.get('/api/proxy-image', requireSession, async (req, res) => {
+    const { id } = req.query;
+    if (!id || !/^[a-zA-Z0-9_-]+$/.test(id)) {
+        return res.status(400).json({ error: 'Invalid file ID' });
+    }
+    try {
+        const driveUrl = `https://drive.google.com/uc?export=view&id=${id}`;
+        const response = await fetch(driveUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0' },
+            redirect: 'follow'
+        });
+        const contentType = response.headers.get('content-type') || '';
+        if (!response.ok || !contentType.startsWith('image/')) {
+            return res.status(422).json({ error: 'Không tải được ảnh — kiểm tra file đã chia sẻ công khai chưa' });
+        }
+        const buf = Buffer.from(await response.arrayBuffer());
+        res.json({ base64: `data:${contentType};base64,${buf.toString('base64')}` });
+    } catch (e) {
+        res.status(502).json({ error: 'Lỗi kết nối Drive: ' + e.message });
+    }
+});
+
 // ===== USERS API (master only) =====
 app.get('/api/users', requireSession, requireMaster, (req, res) => {
     try {
