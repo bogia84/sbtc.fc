@@ -1,10 +1,10 @@
 {
   "fixtures": [
     {
-      "competition": "VCS Mùa Xuân 2026",
-      "round": "Vòng Bảng",
-      "date": "2026-01-15",
-      "opponent": "GAM Esports",
+      "competition": "Giao Hữu",
+      "round": "",
+      "date": "2026-06-29",
+      "opponent": "Sao Vàng FC",
       "opponentIcon": "🦅",
       "sbtcScore": null,
       "opponentScore": null
