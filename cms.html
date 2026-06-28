@@ -1805,18 +1805,25 @@ function switchPmTab(tab) {
     document.getElementById('tab-upload-content').style.display = tab === 'upload' ? '' : 'none';
 }
 
+function isGDriveUrl(url) {
+    return /drive\.google\.com/.test(url);
+}
+
 function updatePmUrlPreview(url) {
     const p = document.getElementById('pm-url-preview');
-    if (url) {
-        p.innerHTML = `<img src="${url}" alt="preview" onerror="this.parentElement.innerHTML='<span style=color:var(--danger)>URL không hợp lệ</span>'">`;
-    } else {
-        p.innerHTML = '<span>Nhập URL để xem trước</span>';
+    if (!url) { p.innerHTML = '<span>Nhập URL để xem trước</span>'; return; }
+    if (isGDriveUrl(url)) {
+        p.innerHTML = '<span style="color:var(--warning,#f59e0b)">Đây là link Google Drive — hãy dùng tab 📂 Google Drive để nhập đúng.</span>';
+        return;
     }
+    p.innerHTML = `<img src="${url}" referrerpolicy="no-referrer" alt="preview" onerror="this.parentElement.innerHTML='<span style=color:var(--danger)>URL không hợp lệ</span>'">`;
 }
 
 function extractGDriveId(url) {
+    // file/d/ID format
     let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
     if (m) return m[1];
+    // ?id=ID or &id=ID format
     m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     if (m) return m[1];
     return null;
@@ -1825,15 +1832,19 @@ function extractGDriveId(url) {
 function gdriveLinkToDirectUrl(url) {
     const id = extractGDriveId(url.trim());
     if (!id) return null;
-    return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+    return `https://drive.google.com/uc?export=view&id=${id}`;
 }
 
 function updatePmGDrivePreview(rawUrl) {
     const p = document.getElementById('pm-gdrive-preview');
     if (!rawUrl.trim()) { p.innerHTML = '<span>Nhập link Drive để xem trước</span>'; return; }
+    if (/\/folders\//.test(rawUrl)) {
+        p.innerHTML = '<span style="color:var(--danger)">Đây là link thư mục — hãy dùng link chia sẻ của từng file ảnh.</span>';
+        return;
+    }
     const direct = gdriveLinkToDirectUrl(rawUrl);
-    if (!direct) { p.innerHTML = '<span style="color:var(--danger)">Link không hợp lệ</span>'; return; }
-    p.innerHTML = `<img src="${direct}" alt="preview" onerror="this.parentElement.innerHTML='<span style=color:var(--danger)>Không tải được — hãy kiểm tra quyền chia sẻ</span>'">`;
+    if (!direct) { p.innerHTML = '<span style="color:var(--danger)">Link không hợp lệ — cần link dạng /file/d/...</span>'; return; }
+    p.innerHTML = `<img src="${direct}" referrerpolicy="no-referrer" alt="preview" onerror="this.parentElement.innerHTML='<span style=color:var(--danger)>Không tải được — kiểm tra file đã chia sẻ công khai chưa</span>'">`;
 }
 
 document.querySelectorAll('.photo-tab-btn').forEach(btn => {
