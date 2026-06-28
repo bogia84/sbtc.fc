@@ -1907,7 +1907,7 @@ document.getElementById('pm-confirm-btn').addEventListener('click', async () => 
             const proxyRes = await fetch(`/api/proxy-image?id=${encodeURIComponent(fileId)}`);
             const data = await proxyRes.json();
             if (!proxyRes.ok) { showToast(data.error || 'Lỗi tải ảnh.', 'error'); return; }
-            photoUrl = data.base64;
+            photoUrl = data.url;
         } catch {
             showToast('Không kết nối được server.', 'error'); return;
         } finally {

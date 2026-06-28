@@ -159,8 +159,35 @@ app.get('/api/proxy-image', async (req, res) => {
         if (!response.ok || !contentType.startsWith('image/')) {
             return res.status(422).json({ error: 'Không tải được ảnh — kiểm tra file đã chia sẻ công khai chưa' });
         }
+
         const buf = Buffer.from(await response.arrayBuffer());
-        res.json({ base64: `data:${contentType};base64,${buf.toString('base64')}` });
+        const ext = (contentType.split('/')[1] || 'jpg').split(';')[0].replace('jpeg', 'jpg');
+        const filename = `${id}.${ext}`;
+        const imagesDir = path.join(__dirname, 'images');
+        if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir);
+        fs.writeFileSync(path.join(imagesDir, filename), buf);
+
+        // Push to GitHub if configured
+        if (GITHUB_TOKEN && GITHUB_REPO) {
+            try {
+                const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/images/${filename}`;
+                const getRes = await fetch(apiUrl, {
+                    headers: { Authorization: `token ${GITHUB_TOKEN}`, 'User-Agent': 'sbtc-cms' }
+                });
+                const existing = getRes.ok ? await getRes.json() : null;
+                const body = { message: `CMS upload: images/${filename}`, content: buf.toString('base64') };
+                if (existing?.sha) body.sha = existing.sha;
+                await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: { Authorization: `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json', 'User-Agent': 'sbtc-cms' },
+                    body: JSON.stringify(body)
+                });
+            } catch (e) {
+                console.error('GitHub image push error:', e.message);
+            }
+        }
+
+        res.json({ url: `/images/${filename}` });
     } catch (e) {
         res.status(502).json({ error: 'Lỗi kết nối Drive: ' + e.message });
     }
