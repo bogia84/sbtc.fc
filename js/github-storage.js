@@ -80,3 +80,33 @@ export async function getSiteContent() { return fetchJSON(DATA_FILES.siteContent
 export async function saveSiteContent(data) { return withClientFallback(DATA_FILES.siteContent)(data); }
 export async function getSiteStatus() { return fetchJSON(DATA_FILES.siteStatus); }
 export async function saveSiteStatus(data) { return withClientFallback(DATA_FILES.siteStatus)(data); }
+
+export async function uploadImage(fileId, arrayBuffer, contentType) {
+    const repo = localStorage.getItem('gh_repo') || REPO;
+    const token = localStorage.getItem('gh_token') || GITHUB_TOKEN;
+    if (!repo || !token) throw new Error('Chưa cấu hình GitHub — vào Cài Đặt Site để nhập Repo và Token');
+
+    const ext = (contentType.split('/')[1] || 'jpg').replace('jpeg', 'jpg').split(';')[0];
+    const filename = `${fileId}.${ext}`;
+    const path = `images/${filename}`;
+
+    const bytes = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    const b64 = btoa(binary);
+
+    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+    const getRes = await fetch(url, { headers: { Authorization: `token ${token}` } });
+    const existing = getRes.ok ? await getRes.json() : null;
+
+    const body = { message: `CMS upload: ${path}`, content: b64 };
+    if (existing?.sha) body.sha = existing.sha;
+
+    const putRes = await fetch(url, {
+        method: 'PUT',
+        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    if (!putRes.ok) throw new Error('GitHub upload thất bại: ' + await putRes.text());
+    return path;
+}

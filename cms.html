@@ -1074,10 +1074,13 @@
 
         <!-- Google Drive Tab -->
         <div id="tab-gdrive-content" style="display:none">
+            <div id="pm-gdrive-server-warning" style="display:none;background:rgba(245,158,11,0.1);border:1px solid #f59e0b;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:0.85rem;color:#f59e0b">
+                ⚠️ Server chưa chạy — sẽ dùng GitHub trực tiếp. Cần cấu hình Repo &amp; Token trong Cài Đặt Site.
+            </div>
             <div class="field-group">
                 <label class="field-label">Dán link chia sẻ Google Drive</label>
                 <input class="form-control" id="pm-gdrive" type="url" placeholder="https://drive.google.com/file/d/...">
-                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">File phải được chia sẻ công khai (Anyone with the link)</div>
+                <div style="font-size:0.78rem;color:var(--muted);margin-top:6px;">File phải được chia sẻ công khai (Anyone with the link)</div>
             </div>
             <div class="pm-preview" id="pm-gdrive-preview">
                 <span>Nhập link Drive để xem trước</span>
@@ -1107,7 +1110,7 @@
 <div id="toast"></div>
 
 <script type="module">
-import { getPlayers, savePlayers, getMatches, saveMatches, getTournaments, saveTournaments, getSiteContent, saveSiteContent, getSiteStatus, saveSiteStatus } from './js/github-storage.js';
+import { getPlayers, savePlayers, getMatches, saveMatches, getTournaments, saveTournaments, getSiteContent, saveSiteContent, getSiteStatus, saveSiteStatus, uploadImage } from './js/github-storage.js';
 
 // ===== AUTH =====
 async function sha256(str) {
@@ -1816,6 +1819,18 @@ function switchPmTab(tab) {
     document.getElementById('tab-url-content').style.display = tab === 'url' ? '' : 'none';
     document.getElementById('tab-gdrive-content').style.display = tab === 'gdrive' ? '' : 'none';
     document.getElementById('tab-upload-content').style.display = tab === 'upload' ? '' : 'none';
+    if (tab === 'gdrive') checkServerForDriveTab();
+}
+
+async function checkServerForDriveTab() {
+    const warn = document.getElementById('pm-gdrive-server-warning');
+    try {
+        const r = await fetch('/api/proxy-image?id=_ping', { signal: AbortSignal.timeout(2000) });
+        // 400 means server is up (just rejected bad id), anything reachable is fine
+        warn.style.display = r.status === 0 ? '' : 'none';
+    } catch {
+        warn.style.display = '';
+    }
 }
 
 function isGDriveUrl(url) {
@@ -1904,12 +1919,25 @@ document.getElementById('pm-confirm-btn').addEventListener('click', async () => 
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Đang tải...';
         try {
-            const proxyRes = await fetch(`/api/proxy-image?id=${encodeURIComponent(fileId)}`);
-            const data = await proxyRes.json();
-            if (!proxyRes.ok) { showToast(data.error || 'Lỗi tải ảnh.', 'error'); return; }
-            photoUrl = data.url;
-        } catch {
-            showToast('Không kết nối được server.', 'error'); return;
+            // Try local server proxy first (when running node server.js)
+            let serverOk = false;
+            try {
+                const serverRes = await fetch(`/api/proxy-image?id=${encodeURIComponent(fileId)}`, { signal: AbortSignal.timeout(3000) });
+                if (serverRes.ok) { photoUrl = (await serverRes.json()).url; serverOk = true; }
+            } catch {}
+
+            if (!serverOk) {
+                // Client-side fallback: CORS proxy → fetch image → upload to GitHub
+                const driveUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+                const imgRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(driveUrl)}`);
+                if (!imgRes.ok) throw new Error('Không tải được ảnh — kiểm tra file đã chia sẻ công khai chưa');
+                const ct = imgRes.headers.get('content-type') || 'image/jpeg';
+                if (!ct.startsWith('image/')) throw new Error('Drive trả về trang HTML — file chưa chia sẻ công khai hoặc quá lớn');
+                const buf = await imgRes.arrayBuffer();
+                photoUrl = await uploadImage(fileId, buf, ct);
+            }
+        } catch (e) {
+            showToast(e.message || 'Lỗi tải ảnh.', 'error'); return;
         } finally {
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Xác Nhận';
