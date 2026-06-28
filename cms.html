@@ -1057,6 +1057,7 @@
         </div>
         <div class="photo-modal-tabs">
             <button class="photo-tab-btn active" data-tab="url">🔗 URL Ảnh</button>
+            <button class="photo-tab-btn" data-tab="gdrive">📂 Google Drive</button>
             <button class="photo-tab-btn" data-tab="upload">📁 Tải Lên</button>
         </div>
 
@@ -1068,6 +1069,18 @@
             </div>
             <div class="pm-preview" id="pm-url-preview">
                 <span>Nhập URL để xem trước</span>
+            </div>
+        </div>
+
+        <!-- Google Drive Tab -->
+        <div id="tab-gdrive-content" style="display:none">
+            <div class="field-group">
+                <label class="field-label">Dán link chia sẻ Google Drive</label>
+                <input class="form-control" id="pm-gdrive" type="url" placeholder="https://drive.google.com/file/d/...">
+                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">File phải được chia sẻ công khai (Anyone with the link)</div>
+            </div>
+            <div class="pm-preview" id="pm-gdrive-preview">
+                <span>Nhập link Drive để xem trước</span>
             </div>
         </div>
 
@@ -1773,6 +1786,8 @@ window.openPhotoModal = function(type, index) {
 
     document.getElementById('pm-url').value = currentUrl;
     updatePmUrlPreview(currentUrl);
+    document.getElementById('pm-gdrive').value = '';
+    document.getElementById('pm-gdrive-preview').innerHTML = '<span>Nhập link Drive để xem trước</span>';
     document.getElementById('pm-file').value = '';
     document.getElementById('pm-upload-preview').innerHTML = '<span>Chưa chọn ảnh</span>';
     switchPmTab('url');
@@ -1786,6 +1801,7 @@ function closePmModal() {
 function switchPmTab(tab) {
     document.querySelectorAll('.photo-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
     document.getElementById('tab-url-content').style.display = tab === 'url' ? '' : 'none';
+    document.getElementById('tab-gdrive-content').style.display = tab === 'gdrive' ? '' : 'none';
     document.getElementById('tab-upload-content').style.display = tab === 'upload' ? '' : 'none';
 }
 
@@ -1798,11 +1814,34 @@ function updatePmUrlPreview(url) {
     }
 }
 
+function extractGDriveId(url) {
+    let m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (m) return m[1];
+    m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m) return m[1];
+    return null;
+}
+
+function gdriveLinkToDirectUrl(url) {
+    const id = extractGDriveId(url.trim());
+    if (!id) return null;
+    return `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+}
+
+function updatePmGDrivePreview(rawUrl) {
+    const p = document.getElementById('pm-gdrive-preview');
+    if (!rawUrl.trim()) { p.innerHTML = '<span>Nhập link Drive để xem trước</span>'; return; }
+    const direct = gdriveLinkToDirectUrl(rawUrl);
+    if (!direct) { p.innerHTML = '<span style="color:var(--danger)">Link không hợp lệ</span>'; return; }
+    p.innerHTML = `<img src="${direct}" alt="preview" onerror="this.parentElement.innerHTML='<span style=color:var(--danger)>Không tải được — hãy kiểm tra quyền chia sẻ</span>'">`;
+}
+
 document.querySelectorAll('.photo-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchPmTab(btn.dataset.tab));
 });
 
 document.getElementById('pm-url').addEventListener('input', e => updatePmUrlPreview(e.target.value));
+document.getElementById('pm-gdrive').addEventListener('input', e => updatePmGDrivePreview(e.target.value));
 
 document.getElementById('pm-upload-area').addEventListener('click', () => {
     document.getElementById('pm-file').click();
@@ -1832,6 +1871,10 @@ document.getElementById('pm-confirm-btn').addEventListener('click', async () => 
 
     if (activeTab === 'url') {
         photoUrl = document.getElementById('pm-url').value.trim();
+    } else if (activeTab === 'gdrive') {
+        const raw = document.getElementById('pm-gdrive').value.trim();
+        photoUrl = gdriveLinkToDirectUrl(raw);
+        if (!photoUrl) { showToast('Link Google Drive không hợp lệ.', 'error'); return; }
     } else {
         if (!_photoBase64) { showToast('Vui lòng chọn ảnh.', 'error'); return; }
         photoUrl = _photoBase64;
