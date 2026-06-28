@@ -1780,10 +1780,12 @@ window.startCellEdit = function(type, index, field, td) {
 // ===== PHOTO POPUP MODAL =====
 let _photoTarget = { type: null, index: null };
 let _photoBase64 = null;
+let _photoFile = null;
 
 window.openPhotoModal = function(type, index) {
     _photoTarget = { type, index };
     _photoBase64 = null;
+    _photoFile = null;
     const arr = type === 'player' ? state.players : state.coaches;
     const currentUrl = (arr[index] && arr[index].photo) || '';
 
@@ -1890,6 +1892,7 @@ document.getElementById('pm-upload-area').addEventListener('click', () => {
 document.getElementById('pm-file').addEventListener('change', function() {
     const file = this.files[0];
     if (!file) return;
+    _photoFile = file;
     const reader = new FileReader();
     reader.onload = e => {
         _photoBase64 = e.target.result;
@@ -1954,8 +1957,35 @@ document.getElementById('pm-confirm-btn').addEventListener('click', async () => 
             confirmBtn.textContent = 'Xác Nhận';
         }
     } else {
-        if (!_photoBase64) { showToast('Vui lòng chọn ảnh.', 'error'); return; }
-        photoUrl = _photoBase64;
+        if (!_photoBase64 || !_photoFile) { showToast('Vui lòng chọn ảnh.', 'error'); return; }
+        const confirmBtn = document.getElementById('pm-confirm-btn');
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Đang tải...';
+        try {
+            let serverOk = false;
+            try {
+                const token = sessionStorage.getItem('cms_token') || '';
+                const r = await fetch('/api/upload-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ data: _photoBase64 }),
+                    signal: AbortSignal.timeout(15000)
+                });
+                if (r.ok) { photoUrl = (await r.json()).url; serverOk = true; }
+            } catch {}
+
+            if (!serverOk) {
+                const buf = await _photoFile.arrayBuffer();
+                const ct = _photoFile.type || 'image/jpeg';
+                photoUrl = await uploadImage(`img_${Date.now()}`, buf, ct);
+            }
+        } catch (e) {
+            showToast('Lỗi tải ảnh: ' + (e.message || 'Thử lại sau'), 'error');
+            return;
+        } finally {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Xác Nhận';
+        }
     }
 
     const { type, index } = _photoTarget;

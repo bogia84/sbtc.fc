@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';  // e.g. "username/sbtc.fc"
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(express.static('.'));
 
 const DATA_DIR = path.join(__dirname, 'data');
@@ -190,6 +190,47 @@ app.get('/api/proxy-image', async (req, res) => {
         res.json({ url: `/images/${filename}` });
     } catch (e) {
         res.status(502).json({ error: 'Lỗi kết nối Drive: ' + e.message });
+    }
+});
+
+// ===== DIRECT IMAGE UPLOAD =====
+app.post('/api/upload-image', requireSession, (req, res) => {
+    const { data } = req.body || {};
+    if (!data || !data.startsWith('data:image/')) {
+        return res.status(400).json({ error: 'Invalid image data' });
+    }
+
+    try {
+        const [header, b64] = data.split(',');
+        const ctMatch = header.match(/data:([^;]+)/);
+        const ct = ctMatch ? ctMatch[1] : 'image/jpeg';
+        const ext = (ct.split('/')[1] || 'jpg').replace('jpeg', 'jpg').split(';')[0];
+        const filename = `upload_${Date.now()}.${ext}`;
+
+        const buf = Buffer.from(b64, 'base64');
+        const imagesDir = path.join(__dirname, 'images');
+        if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir);
+        fs.writeFileSync(path.join(imagesDir, filename), buf);
+
+        if (GITHUB_TOKEN && GITHUB_REPO) {
+            (async () => {
+                try {
+                    const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/images/${filename}`;
+                    const body = { message: `CMS upload: images/${filename}`, content: b64 };
+                    await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: { Authorization: `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json', 'User-Agent': 'sbtc-cms' },
+                        body: JSON.stringify(body)
+                    });
+                } catch (e) {
+                    console.error('GitHub image push error:', e.message);
+                }
+            })();
+        }
+
+        res.json({ url: `/images/${filename}` });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
     }
 });
 
