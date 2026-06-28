@@ -1927,10 +1927,21 @@ document.getElementById('pm-confirm-btn').addEventListener('click', async () => 
             } catch {}
 
             if (!serverOk) {
-                // Client-side fallback: CORS proxy → fetch image → upload to GitHub
+                // Client-side fallback: try CORS proxies in order → upload to GitHub
                 const driveUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
-                const imgRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(driveUrl)}`);
-                if (!imgRes.ok) throw new Error('Không tải được ảnh — kiểm tra file đã chia sẻ công khai chưa');
+                const proxies = [
+                    `https://corsproxy.io/?${encodeURIComponent(driveUrl)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(driveUrl)}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(driveUrl)}`,
+                ];
+                let imgRes = null;
+                for (const proxyUrl of proxies) {
+                    try {
+                        const r = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+                        if (r.ok) { imgRes = r; break; }
+                    } catch {}
+                }
+                if (!imgRes) throw new Error('Không tải được ảnh — kiểm tra file đã chia sẻ công khai và thử lại');
                 const ct = imgRes.headers.get('content-type') || 'image/jpeg';
                 if (!ct.startsWith('image/')) throw new Error('Drive trả về trang HTML — file chưa chia sẻ công khai hoặc quá lớn');
                 const buf = await imgRes.arrayBuffer();
