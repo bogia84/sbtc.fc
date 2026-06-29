@@ -211,7 +211,10 @@
         }
 
         .card-back {
-            background: linear-gradient(135deg, #e82a63 0%, #610d2c 100%);
+            background:
+                url('img/logo.png') center/65% no-repeat,
+                linear-gradient(135deg, #e82a63 0%, #610d2c 100%);
+            background-blend-mode: multiply, normal;
             color: white;
             transform: rotateY(180deg);
             display: flex;
