@@ -295,11 +295,8 @@
             border-radius: 8px;
             background: var(--surface2);
             border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--muted);
-            font-size: 1.2rem;
+            object-fit: contain;
+            mix-blend-mode: multiply;
         }
 
         .badge {
@@ -424,6 +421,101 @@
         .match-day small { font-size: 0.6rem; color: var(--muted); font-weight: 500; letter-spacing: 1px; margin-top: 2px; }
         .match-opponent { font-size: 1.1rem; font-weight: 700; }
         .match-icon { font-size: 1.8rem; }
+
+        /* ---- COMPETITION (FIXTURE PARENT) CARDS ---- */
+        .comp-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .comp-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comp-card-icon {
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .comp-card-name {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .comp-card-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .comp-fixture-list {
+            padding: 8px 0;
+        }
+
+        .comp-fixture-empty {
+            padding: 16px 18px;
+            color: var(--muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .cfi-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .cfi-row:last-child { border-bottom: none; }
+
+        .cfi-date {
+            font-size: 0.78rem;
+            color: var(--muted);
+            min-width: 82px;
+            flex-shrink: 0;
+        }
+
+        .cfi-round {
+            font-size: 0.78rem;
+            color: var(--accent);
+            font-weight: 600;
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .cfi-teams {
+            flex: 1;
+            font-size: 0.88rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cfi-score {
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .cfi-score.ft { background: rgba(232,42,99,0.12); color: var(--accent); }
+        .cfi-score.upcoming { background: rgba(46,204,113,0.12); color: var(--success); }
+
+        .cfi-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
         /* ---- TOURNAMENT LIST ---- */
         .tournament-card {
@@ -806,7 +898,7 @@
             <div class="panel" id="panel-matches">
                 <div class="panel-header">
                     <h1 class="panel-title">Lịch <span>Thi Đấu</span></h1>
-                    <button class="btn btn-primary btn-sm" id="btn-add-match">+ Thêm Trận</button>
+                    <button class="btn btn-primary btn-sm" id="btn-add-comp">+ Thêm Giải Đấu</button>
                 </div>
                 <div id="matches-list"></div>
             </div>
@@ -998,7 +1090,28 @@
     </div>
 </div>
 
-<!-- ===== MATCH DRAWER ===== -->
+<!-- ===== COMPETITION DRAWER ===== -->
+<div class="drawer-overlay" id="comp-drawer-overlay">
+    <div class="drawer">
+        <div class="drawer-title" id="comp-drawer-title">Thêm Giải Đấu</div>
+
+        <div class="field-group">
+            <label class="field-label">Tên Giải Đấu</label>
+            <input class="form-control" id="cd-name" type="text" placeholder="VCS Mùa Xuân 2026">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Icon (Emoji)</label>
+            <input class="form-control" id="cd-icon" type="text" placeholder="🏆">
+        </div>
+
+        <div class="drawer-footer">
+            <button class="btn btn-primary" id="comp-save-btn" style="flex:1">Lưu</button>
+            <button class="btn btn-ghost" id="comp-cancel-btn">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MATCH (FIXTURE) DRAWER ===== -->
 <div class="drawer-overlay" id="match-drawer-overlay">
     <div class="drawer">
         <div class="drawer-title" id="match-drawer-title">Thêm Trận Đấu</div>
@@ -1006,10 +1119,6 @@
         <div class="field-group">
             <label class="field-label">Ngày Thi Đấu</label>
             <input class="form-control" id="md-date" type="date">
-        </div>
-        <div class="field-group">
-            <label class="field-label">Giải Đấu</label>
-            <input class="form-control" id="md-competition" type="text" placeholder="VCS Mùa Xuân 2026">
         </div>
         <div class="field-group">
             <label class="field-label">Vòng Đấu</label>
@@ -1026,11 +1135,11 @@
         <div style="display:flex;gap:12px;">
             <div class="field-group" style="flex:1">
                 <label class="field-label">Tỷ Số SBTC</label>
-                <input class="form-control" id="md-sbtc-score" type="number" min="0" placeholder="(bỏ trống nếu chưa đá)">
+                <input class="form-control" id="md-sbtc-score" type="number" min="0" placeholder="(để trống nếu chưa đá)">
             </div>
             <div class="field-group" style="flex:1">
                 <label class="field-label">Tỷ Số Đối Thủ</label>
-                <input class="form-control" id="md-opp-score" type="number" min="0" placeholder="(bỏ trống nếu chưa đá)">
+                <input class="form-control" id="md-opp-score" type="number" min="0" placeholder="(để trống nếu chưa đá)">
             </div>
         </div>
 
@@ -1229,7 +1338,7 @@ document.querySelectorAll('.sidebar-link').forEach(link => {
 });
 
 // ===== STATE =====
-let state = { players: [], coaches: [], fixtures: [], tournaments: [], siteContent: {}, siteStatus: {} };
+let state = { players: [], coaches: [], competitions: [], tournaments: [], siteContent: {}, siteStatus: {} };
 
 async function initApp() {
     try {
@@ -1238,7 +1347,7 @@ async function initApp() {
         ]);
         state.players = pd.players || [];
         state.coaches = pd.coaches || [];
-        state.fixtures = fd.fixtures || [];
+        state.competitions = fd.competitions || [];
         state.tournaments = td.tournaments || [];
         state.siteContent = sc;
         state.siteStatus = ss;
@@ -1311,7 +1420,7 @@ function renderPlayers() {
             <td><span class="drag-handle">⠿</span></td>
             <td class="photo-cell" onclick="openPhotoModal('player', ${i})" style="padding:8px 16px;">
                 <div class="photo-wrap">
-                    ${p.photo ? `<img class="player-thumb" src="${p.photo}" alt="${p.name}">` : `<div class="player-thumb-placeholder">?</div>`}
+                    ${p.photo ? `<img class="player-thumb" src="${p.photo}" alt="${p.name}">` : `<img class="player-thumb-placeholder" src="img/logo.png" alt="SBTC FC">`}
                     <div class="photo-cell-overlay">📷</div>
                 </div>
             </td>
@@ -1341,7 +1450,7 @@ function renderCoaches() {
             <td><span class="drag-handle">⠿</span></td>
             <td class="photo-cell" onclick="openPhotoModal('coach', ${i})" style="padding:8px 16px;">
                 <div class="photo-wrap">
-                    ${c.photo ? `<img class="player-thumb" src="${c.photo}" alt="${c.name}">` : `<div class="player-thumb-placeholder">?</div>`}
+                    ${c.photo ? `<img class="player-thumb" src="${c.photo}" alt="${c.name}">` : `<img class="player-thumb-placeholder" src="img/logo.png" alt="SBTC FC">`}
                     <div class="photo-cell-overlay">📷</div>
                 </div>
             </td>
@@ -1469,46 +1578,117 @@ window.deleteMember = async (type, index) => {
     }
 };
 
-// ===== MATCHES (FIXTURES) =====
+// ===== COMPETITIONS & FIXTURES =====
 function renderMatches() {
     const list = document.getElementById('matches-list');
-    if (!state.fixtures.length) {
-        list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">Chưa có trận đấu nào.</p>';
+    if (!state.competitions.length) {
+        list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px 0;">Chưa có giải đấu nào.</p>';
         return;
     }
-    list.innerHTML = state.fixtures.map((f, i) => {
-        const hasScore = f.sbtcScore !== null && f.sbtcScore !== undefined && f.sbtcScore !== '';
-        const scoreLabel = hasScore ? `${f.sbtcScore} - ${f.opponentScore}` : 'Sắp diễn ra';
-        const scoreBadgeColor = hasScore ? 'var(--accent)' : 'var(--success)';
-        const dateStr = f.date ? new Date(f.date + 'T00:00:00').toLocaleDateString('vi-VN') : '';
+
+    list.innerHTML = state.competitions.map((comp, ci) => {
+        const fixtures = comp.fixtures || [];
+        const fixtureRows = fixtures.length
+            ? fixtures.map((f, fi) => {
+                const hasScore = f.sbtcScore !== null && f.sbtcScore !== undefined && f.sbtcScore !== '';
+                const scoreLabel = hasScore ? `${f.sbtcScore} - ${f.opponentScore}` : 'Sắp diễn ra';
+                const scoreClass = hasScore ? 'ft' : 'upcoming';
+                const dateStr = f.date ? new Date(f.date + 'T00:00:00').toLocaleDateString('vi-VN') : '—';
+                return `
+                <div class="cfi-row">
+                    <span class="cfi-date">${dateStr}</span>
+                    <span class="cfi-round">${f.round || ''}</span>
+                    <span class="cfi-teams">SBTC FC vs ${f.opponent || 'TBD'} ${f.opponentIcon || ''}</span>
+                    <span class="cfi-score ${scoreClass}">${scoreLabel}</span>
+                    <div class="cfi-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="editFixture(${ci},${fi})">Sửa</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteFixture(${ci},${fi})">Xóa</button>
+                    </div>
+                </div>`;
+            }).join('')
+            : `<div class="comp-fixture-empty">Chưa có trận nào — nhấn "+ Trận" để thêm.</div>`;
+
         return `
-        <div class="match-item">
-            <div class="match-item-info">
-                <div class="match-day" style="font-size:0.7rem;width:auto;padding:4px 8px;">${dateStr || '—'}</div>
-                <div>
-                    <div class="match-opponent">SBTC FC vs ${f.opponent || 'TBD'} ${f.opponentIcon || ''}</div>
-                    <div style="color:var(--muted);font-size:0.82rem;">${f.competition || ''} · ${f.round || ''}</div>
+        <div class="comp-card">
+            <div class="comp-card-header">
+                <span class="comp-card-icon">${comp.icon || '🏆'}</span>
+                <span class="comp-card-name">${comp.name || 'Giải Đấu'}</span>
+                <div class="comp-card-actions">
+                    <button class="btn btn-primary btn-sm" onclick="addFixtureToComp(${ci})">+ Trận</button>
+                    <button class="btn btn-ghost btn-sm" onclick="editComp(${ci})">Sửa</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteComp(${ci})">Xóa</button>
                 </div>
             </div>
-            <div style="display:flex;align-items:center;gap:12px;">
-                <span style="background:${scoreBadgeColor}22;color:${scoreBadgeColor};border:1px solid ${scoreBadgeColor}44;border-radius:6px;padding:3px 10px;font-size:0.8rem;font-weight:700;white-space:nowrap;">${scoreLabel}</span>
-                <div class="row-actions">
-                    <button class="btn btn-ghost btn-sm" onclick="editMatch(${i})">Sửa</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteMatch(${i})">Xóa</button>
-                </div>
-            </div>
+            <div class="comp-fixture-list">${fixtureRows}</div>
         </div>`;
     }).join('');
 }
 
-let matchEditIndex = null;
+// ----- Competition CRUD -----
+let compEditIndex = null;
 
-function openMatchDrawer(index) {
-    matchEditIndex = index;
-    const f = index !== null ? state.fixtures[index] : {};
-    document.getElementById('match-drawer-title').textContent = index !== null ? 'Sửa Trận Đấu' : 'Thêm Trận Đấu';
+function openCompDrawer(index) {
+    compEditIndex = index;
+    const comp = index !== null ? state.competitions[index] : {};
+    document.getElementById('comp-drawer-title').textContent = index !== null ? 'Sửa Giải Đấu' : 'Thêm Giải Đấu';
+    document.getElementById('cd-name').value = comp.name || '';
+    document.getElementById('cd-icon').value = comp.icon || '';
+    document.getElementById('comp-drawer-overlay').classList.add('show');
+}
+
+document.getElementById('btn-add-comp').addEventListener('click', () => openCompDrawer(null));
+window.editComp = i => openCompDrawer(i);
+
+document.getElementById('comp-cancel-btn').addEventListener('click', () => document.getElementById('comp-drawer-overlay').classList.remove('show'));
+document.getElementById('comp-drawer-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('comp-drawer-overlay')) document.getElementById('comp-drawer-overlay').classList.remove('show');
+});
+
+document.getElementById('comp-save-btn').addEventListener('click', async () => {
+    const name = document.getElementById('cd-name').value.trim();
+    const icon = document.getElementById('cd-icon').value.trim();
+    if (!name) { showToast('Vui lòng nhập tên giải đấu.', 'error'); return; }
+
+    if (compEditIndex !== null) {
+        state.competitions[compEditIndex].name = name;
+        state.competitions[compEditIndex].icon = icon || '🏆';
+    } else {
+        state.competitions.push({ name, icon: icon || '🏆', fixtures: [] });
+    }
+
+    try {
+        await saveFixtures({ competitions: state.competitions });
+        showToast('Đã lưu giải đấu!');
+        document.getElementById('comp-drawer-overlay').classList.remove('show');
+        renderMatches();
+    } catch (e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
+});
+
+window.deleteComp = async ci => {
+    const comp = state.competitions[ci];
+    if (!confirm(`Xóa giải đấu "${comp.name}" và tất cả ${(comp.fixtures||[]).length} trận?`)) return;
+    state.competitions.splice(ci, 1);
+    try {
+        await saveFixtures({ competitions: state.competitions });
+        showToast('Đã xóa giải đấu.');
+        renderMatches();
+    } catch (e) {
+        showToast('Lỗi: ' + e.message, 'error');
+    }
+};
+
+// ----- Fixture CRUD -----
+let fixtureEditCompIndex = null;
+let fixtureEditIndex = null;
+
+function openFixtureDrawer(ci, fi) {
+    fixtureEditCompIndex = ci;
+    fixtureEditIndex = fi;
+    const f = fi !== null ? (state.competitions[ci].fixtures || [])[fi] : {};
+    document.getElementById('match-drawer-title').textContent = fi !== null ? 'Sửa Trận Đấu' : 'Thêm Trận Đấu';
     document.getElementById('md-date').value = f.date || '';
-    document.getElementById('md-competition').value = f.competition || '';
     document.getElementById('md-round').value = f.round || '';
     document.getElementById('md-opponent').value = f.opponent || '';
     document.getElementById('md-icon').value = f.opponentIcon || '';
@@ -1517,8 +1697,9 @@ function openMatchDrawer(index) {
     document.getElementById('match-drawer-overlay').classList.add('show');
 }
 
-document.getElementById('btn-add-match').addEventListener('click', () => openMatchDrawer(null));
-window.editMatch = i => openMatchDrawer(i);
+window.addFixtureToComp = ci => openFixtureDrawer(ci, null);
+window.editFixture = (ci, fi) => openFixtureDrawer(ci, fi);
+
 document.getElementById('match-cancel-btn').addEventListener('click', () => document.getElementById('match-drawer-overlay').classList.remove('show'));
 document.getElementById('match-drawer-overlay').addEventListener('click', e => {
     if (e.target === document.getElementById('match-drawer-overlay')) document.getElementById('match-drawer-overlay').classList.remove('show');
@@ -1526,7 +1707,6 @@ document.getElementById('match-drawer-overlay').addEventListener('click', e => {
 
 document.getElementById('match-save-btn').addEventListener('click', async () => {
     const date = document.getElementById('md-date').value.trim();
-    const competition = document.getElementById('md-competition').value.trim();
     const round = document.getElementById('md-round').value.trim();
     const opponent = document.getElementById('md-opponent').value.trim();
     const opponentIcon = document.getElementById('md-icon').value.trim();
@@ -1537,16 +1717,20 @@ document.getElementById('match-save-btn').addEventListener('click', async () => 
 
     const sbtcScore = sbtcRaw !== '' ? parseInt(sbtcRaw) : null;
     const opponentScore = oppRaw !== '' ? parseInt(oppRaw) : null;
+    const fixture = { round, date, opponent, opponentIcon: opponentIcon || '⚽', sbtcScore, opponentScore };
 
-    const fixture = { competition, round, date, opponent, opponentIcon: opponentIcon || '⚽', sbtcScore, opponentScore };
-    if (matchEditIndex !== null) state.fixtures[matchEditIndex] = fixture;
-    else state.fixtures.push(fixture);
-
-    state.fixtures.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    const fixtures = state.competitions[fixtureEditCompIndex].fixtures || [];
+    if (fixtureEditIndex !== null) {
+        fixtures[fixtureEditIndex] = fixture;
+    } else {
+        fixtures.push(fixture);
+        fixtures.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    }
+    state.competitions[fixtureEditCompIndex].fixtures = fixtures;
 
     try {
-        await saveFixtures({ fixtures: state.fixtures });
-        showToast('Đã lưu lịch thi đấu!');
+        await saveFixtures({ competitions: state.competitions });
+        showToast('Đã lưu trận đấu!');
         document.getElementById('match-drawer-overlay').classList.remove('show');
         renderMatches();
     } catch (e) {
@@ -1554,11 +1738,11 @@ document.getElementById('match-save-btn').addEventListener('click', async () => 
     }
 });
 
-window.deleteMatch = async i => {
+window.deleteFixture = async (ci, fi) => {
     if (!confirm('Xóa trận này?')) return;
-    state.fixtures.splice(i, 1);
+    state.competitions[ci].fixtures.splice(fi, 1);
     try {
-        await saveFixtures({ fixtures: state.fixtures });
+        await saveFixtures({ competitions: state.competitions });
         showToast('Đã xóa trận.');
         renderMatches();
     } catch (e) {

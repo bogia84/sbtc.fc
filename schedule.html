@@ -345,20 +345,52 @@
         function formatDate(dateStr) {
             if (!dateStr) return '';
             const d = new Date(dateStr + 'T00:00:00');
-            const dd = String(d.getDate()).padStart(2, '0');
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const yyyy = d.getFullYear();
-            return `${dd}/${mm}/${yyyy}`;
+            return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
         }
 
         function isUpcoming(f) {
             return f.sbtcScore === null || f.sbtcScore === undefined || f.sbtcScore === '';
         }
 
-        function renderFixtures(fixtures) {
+        function renderFixtureRow(f) {
+            const upcoming = isUpcoming(f);
+            const roundLabel = (f.round || '').length > 10 ? f.round.substring(0, 10) + '…' : (f.round || '');
+            const sbtcScoreHtml = upcoming
+                ? `<span class="team-score dash">—</span>`
+                : `<span class="team-score">${f.sbtcScore}</span>`;
+            const oppScoreHtml = upcoming
+                ? `<span class="team-score dash">—</span>`
+                : `<span class="team-score">${f.opponentScore}</span>`;
+
+            return `
+            <div class="fixture-row">
+                <div class="fixture-meta">
+                    <span class="fixture-round">${roundLabel}</span>
+                    ${upcoming
+                        ? `<span class="fixture-date-label">${formatDate(f.date)}</span>`
+                        : `<span class="fixture-status">KT</span>`
+                    }
+                </div>
+                <div class="fixture-teams">
+                    <div class="team-row">
+                        <div class="team-logo sbtc">${SBTC_SHIELD_SVG}</div>
+                        <span class="team-name">SBTC FC</span>
+                        ${sbtcScoreHtml}
+                    </div>
+                    <div class="team-row">
+                        <div class="team-logo">${f.opponentIcon || '⚽'}</div>
+                        <span class="team-name">${f.opponent || 'TBD'}</span>
+                        ${oppScoreHtml}
+                    </div>
+                </div>
+                <button class="fav-btn" title="Yêu thích">☆</button>
+            </div>`;
+        }
+
+        function renderCompetitions(competitions) {
             const container = document.getElementById('fixtures-container');
 
-            if (!fixtures || !fixtures.length) {
+            if (!competitions || !competitions.length) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div style="font-size:2.5rem">⚽</div>
@@ -367,71 +399,28 @@
                 return;
             }
 
-            // Group by competition
-            const groups = {};
-            fixtures.forEach(f => {
-                const key = f.competition || 'Lịch Thi Đấu';
-                if (!groups[key]) groups[key] = [];
-                groups[key].push(f);
-            });
-
-            const html = Object.entries(groups).map(([comp, matches]) => {
-                const rows = matches.map(f => {
-                    const upcoming = isUpcoming(f);
-                    const statusLabel = upcoming ? 'Sắp diễn ra' : 'KT';
-                    const statusClass = upcoming ? 'upcoming' : '';
-                    const sbtcScoreHtml = upcoming
-                        ? `<span class="team-score dash">—</span>`
-                        : `<span class="team-score">${f.sbtcScore}</span>`;
-                    const oppScoreHtml = upcoming
-                        ? `<span class="team-score dash">—</span>`
-                        : `<span class="team-score">${f.opponentScore}</span>`;
-                    const roundLabel = (f.round || '').length > 10
-                        ? f.round.substring(0, 10) + '…'
-                        : (f.round || '');
-
-                    return `
-                    <div class="fixture-row">
-                        <div class="fixture-meta">
-                            <span class="fixture-round">${roundLabel}</span>
-                            ${upcoming
-                                ? `<span class="fixture-date-label">${formatDate(f.date)}</span>`
-                                : `<span class="fixture-status ${statusClass}">${statusLabel}</span>`
-                            }
-                        </div>
-                        <div class="fixture-teams">
-                            <div class="team-row">
-                                <div class="team-logo sbtc">${SBTC_SHIELD_SVG}</div>
-                                <span class="team-name">SBTC FC</span>
-                                ${sbtcScoreHtml}
-                            </div>
-                            <div class="team-row">
-                                <div class="team-logo">${f.opponentIcon || '⚽'}</div>
-                                <span class="team-name">${f.opponent || 'TBD'}</span>
-                                ${oppScoreHtml}
-                            </div>
-                        </div>
-                        <button class="fav-btn" title="Yêu thích">☆</button>
-                    </div>`;
-                }).join('');
+            const html = competitions.map(comp => {
+                const fixtures = comp.fixtures || [];
+                const fixtureRows = fixtures.length
+                    ? fixtures.map(renderFixtureRow).join('')
+                    : `<div style="padding:16px;text-align:center;color:#555;font-size:0.85rem;">Chưa có trận nào.</div>`;
 
                 return `
                 <div class="competition-section">
                     <div class="competition-header">
-                        <div class="comp-icon">🏆</div>
+                        <div class="comp-icon">${comp.icon || '🏆'}</div>
                         <div class="comp-info">
-                            <div class="comp-name">${comp}</div>
-                            <div class="comp-sub">Giải Đấu</div>
+                            <div class="comp-name">${comp.name || 'Giải Đấu'}</div>
+                            <div class="comp-sub">Giải Đấu · ${fixtures.length} trận</div>
                         </div>
                         <div class="comp-arrow">›</div>
                     </div>
-                    ${rows}
+                    ${fixtureRows}
                 </div>`;
             }).join('');
 
             container.innerHTML = html;
 
-            // Fav button toggle
             container.querySelectorAll('.fav-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     btn.classList.toggle('active');
@@ -443,7 +432,7 @@
         async function init() {
             try {
                 const data = await getFixtures();
-                renderFixtures(data.fixtures || []);
+                renderCompetitions(data.competitions || []);
             } catch (e) {
                 document.getElementById('fixtures-container').innerHTML = `
                     <div class="empty-state">

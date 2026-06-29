@@ -203,11 +203,11 @@
             border-radius: 10px;
         }
 
-        .placeholder-mark {
-            font-size: 8rem;
-            color: rgba(255, 255, 255, 0.1);
-            font-weight: 900;
-            text-shadow: 0 0 20px rgba(232, 42, 99, 0.3);
+        .logo-placeholder {
+            width: 82%;
+            height: 82%;
+            object-fit: contain;
+            mix-blend-mode: multiply;
         }
 
         .card-back {
@@ -681,7 +681,7 @@
 
                     const frontContent = item.photo
                         ? `<img src="${item.photo}" alt="${item.name}" referrerpolicy="no-referrer">`
-                        : `<div class="placeholder-mark">?</div>`;
+                        : `<img class="logo-placeholder" src="img/logo.png" alt="SBTC FC">`;
 
                     const socialLinks = `
                         <div class="social-links">
