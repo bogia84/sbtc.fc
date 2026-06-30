@@ -108,30 +108,38 @@ app.post('/api/github-write', requireSession, async (req, res) => {
     if (GITHUB_TOKEN && GITHUB_REPO) {
         try {
             const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/data/${path.basename(filename)}`;
-            const getRes = await fetch(apiUrl, {
-                headers: { Authorization: `token ${GITHUB_TOKEN}`, 'User-Agent': 'sbtc-cms' }
-            });
-            const existing = getRes.ok ? await getRes.json() : null;
-
             const encoded = Buffer.from(content).toString('base64');
-            const body = {
-                message: `CMS update: ${path.basename(filename)}`,
-                content: encoded,
-            };
-            if (existing?.sha) body.sha = existing.sha;
 
-            const putRes = await fetch(apiUrl, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json',
-                    'User-Agent': 'sbtc-cms'
-                },
-                body: JSON.stringify(body)
-            });
+            // Retry once on 409 (SHA mismatch due to concurrent write)
+            for (let attempt = 0; attempt < 2; attempt++) {
+                const getRes = await fetch(apiUrl, {
+                    headers: { Authorization: `token ${GITHUB_TOKEN}`, 'User-Agent': 'sbtc-cms' }
+                });
+                const existing = getRes.ok ? await getRes.json() : null;
 
-            if (!putRes.ok) {
+                const body = {
+                    message: `CMS update: ${path.basename(filename)}`,
+                    content: encoded,
+                };
+                if (existing?.sha) body.sha = existing.sha;
+
+                const putRes = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `token ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'sbtc-cms'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (putRes.ok) break;
+
                 const err = await putRes.text();
+                if (putRes.status === 409 && attempt === 0) {
+                    console.warn('GitHub 409 SHA mismatch, retrying with fresh SHA...');
+                    continue;
+                }
                 console.error('GitHub write error:', err);
                 return res.status(502).json({ error: 'GitHub write failed', detail: err });
             }
