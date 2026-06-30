@@ -400,7 +400,10 @@
             }
 
             const html = competitions.map(comp => {
-                const fixtures = comp.fixtures || [];
+                const allFixtures = comp.fixtures || [];
+                const upcoming = allFixtures.filter(isUpcoming).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+                const played = allFixtures.filter(f => !isUpcoming(f)).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                const fixtures = [...upcoming, ...played];
                 const fixtureRows = fixtures.length
                     ? fixtures.map(renderFixtureRow).join('')
                     : `<div style="padding:16px;text-align:center;color:#555;font-size:0.85rem;">Chưa có trận nào.</div>`;
