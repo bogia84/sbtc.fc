@@ -16,6 +16,14 @@
           "opponentIcon": "⭐",
           "sbtcScore": 11,
           "opponentScore": 3
+        },
+        {
+          "round": "Giao Hữu",
+          "date": "2026-07-03",
+          "opponent": "Cánh Bướm",
+          "opponentIcon": "🦋",
+          "sbtcScore": null,
+          "opponentScore": null
         }
       ],
       "name": "Giao Hữu",
