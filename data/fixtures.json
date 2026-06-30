@@ -7,7 +7,17 @@
       "opponent": "Sao Vàng FC",
       "opponentIcon": "⭐",
       "sbtcScore": null,
-      "opponentScore": null
+      "opponentScore": null,
+      "fixtures": [
+        {
+          "round": "",
+          "date": "",
+          "opponent": "Sao Vàng FC",
+          "opponentIcon": "⭐",
+          "sbtcScore": 11,
+          "opponentScore": 3
+        }
+      ]
     }
   ]
 }
